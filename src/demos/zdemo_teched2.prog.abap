@@ -6,60 +6,60 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_teched2.
+report zdemo_teched2.
 
 *******************************
 *   Data Object declaration   *
 *******************************
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_excel_writer         TYPE REF TO zif_excel_writer,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet.
+data: lo_excel        type ref to zcl_excel,
+      lo_excel_writer type ref to zif_excel_writer,
+      lo_worksheet    type ref to zcl_excel_worksheet.
 
-DATA: lo_style_title           TYPE REF TO zcl_excel_style,
-      lv_style_title_guid      TYPE zexcel_cell_style.
+data: lo_style_title      type ref to zcl_excel_style,
+      lv_style_title_guid type zexcel_cell_style.
 
-DATA: lv_file                 TYPE xstring,
-      lv_bytecount            TYPE i,
-      lt_file_tab             TYPE solix_tab.
+data: lv_file      type xstring,
+      lv_bytecount type i,
+      lt_file_tab  type solix_tab.
 
-DATA: lv_full_path      TYPE string,
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
+data: lv_full_path      type string,
+      lv_workdir        type string,
+      lv_file_separator type c.
 
-CONSTANTS: lv_default_file_name TYPE string VALUE 'TechEd01.xlsx'.
+constants: lv_default_file_name type string value 'TechEd01.xlsx'.
 
 *******************************
 * Selection screen management *
 *******************************
 
-PARAMETERS: p_path TYPE zexcel_export_dir.
+parameters: p_path type zexcel_export_dir.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_path.
+at selection-screen on value-request for p_path.
   lv_workdir = p_path.
-  cl_gui_frontend_services=>directory_browse( EXPORTING initial_folder  = lv_workdir
-                                              CHANGING  selected_folder = lv_workdir ).
+  cl_gui_frontend_services=>directory_browse( exporting initial_folder  = lv_workdir
+                                              changing  selected_folder = lv_workdir ).
   p_path = lv_workdir.
 
-INITIALIZATION.
-  cl_gui_frontend_services=>get_sapgui_workdir( CHANGING sapworkdir = lv_workdir ).
+initialization.
+  cl_gui_frontend_services=>get_sapgui_workdir( changing sapworkdir = lv_workdir ).
   cl_gui_cfw=>flush( ).
   p_path = lv_workdir.
 
-START-OF-SELECTION.
+start-of-selection.
 
-  IF p_path IS INITIAL.
+  if p_path is initial.
     p_path = lv_workdir.
-  ENDIF.
-  cl_gui_frontend_services=>get_file_separator( CHANGING file_separator = lv_file_separator ).
-  CONCATENATE p_path lv_file_separator lv_default_file_name INTO lv_full_path.
+  endif.
+  cl_gui_frontend_services=>get_file_separator( changing file_separator = lv_file_separator ).
+  concatenate p_path lv_file_separator lv_default_file_name into lv_full_path.
 
 *******************************
 *    abap2xlsx create XLSX    *
 *******************************
 
   " Create excel instance
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Styles
   lo_style_title                   = lo_excel->add_new_style( ).
@@ -73,7 +73,7 @@ START-OF-SELECTION.
   lo_worksheet->set_cell( ip_column = 'B' ip_row = 5 ip_value = 'TechEd demo' ip_style = lv_style_title_guid ).
 
   " Create xlsx stream
-  CREATE OBJECT lo_excel_writer TYPE zcl_excel_writer_2007.
+  create object lo_excel_writer type zcl_excel_writer_2007.
   lv_file = lo_excel_writer->write_file( lo_excel ).
 
 *******************************
@@ -85,7 +85,7 @@ START-OF-SELECTION.
   lv_bytecount = xstrlen( lv_file ).
 
   " Save the file
-  cl_gui_frontend_services=>gui_download( EXPORTING bin_filesize = lv_bytecount
+  cl_gui_frontend_services=>gui_download( exporting bin_filesize = lv_bytecount
                                                     filename     = lv_full_path
                                                     filetype     = 'BIN'
-                                           CHANGING data_tab     = lt_file_tab ).
+                                           changing data_tab     = lt_file_tab ).

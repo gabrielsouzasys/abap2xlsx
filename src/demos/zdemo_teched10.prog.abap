@@ -6,44 +6,44 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_teched10.
+report zdemo_teched10.
 
 *******************************
 *   Data Object declaration   *
 *******************************
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_excel_reader         TYPE REF TO zif_excel_reader,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet.
+data: lo_excel        type ref to zcl_excel,
+      lo_excel_reader type ref to zif_excel_reader,
+      lo_worksheet    type ref to zcl_excel_worksheet.
 
-DATA: lv_full_path      TYPE string,
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
+data: lv_full_path      type string,
+      lv_workdir        type string,
+      lv_file_separator type c.
 
-DATA: lt_files          TYPE filetable,
-      ls_file           TYPE file_table,
-      lv_rc             TYPE i,
-      lv_value          TYPE zexcel_cell_value.
+data: lt_files type filetable,
+      ls_file  type file_table,
+      lv_rc    type i,
+      lv_value type zexcel_cell_value.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE 'TechEd01.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value 'TechEd01.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-START-OF-SELECTION.
+start-of-selection.
 
 *******************************
 *    abap2xlsx read XLSX    *
 *******************************
-  CREATE OBJECT lo_excel_reader TYPE zcl_excel_reader_2007.
+  create object lo_excel_reader type zcl_excel_reader_2007.
   lo_excel = lo_excel_reader->load_file( lv_full_path ).
 
   lo_excel->set_active_sheet_index( 1 ).
   lo_worksheet = lo_excel->get_active_worksheet( ).
 
-  lo_worksheet->get_cell( EXPORTING ip_column = 'C'
+  lo_worksheet->get_cell( exporting ip_column = 'C'
                                     ip_row    = 10
-                          IMPORTING ep_value  = lv_value ).
+                          importing ep_value  = lv_value ).
 
-  WRITE: 'abap2xlsx total score is ', lv_value.
+  write: 'abap2xlsx total score is ', lv_value.
 
 *** Create output
   lcl_output=>output( lo_excel ).

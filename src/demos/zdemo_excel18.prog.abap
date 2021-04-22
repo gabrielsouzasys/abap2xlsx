@@ -6,20 +6,20 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel18.
+report zdemo_excel18.
 
-DATA: lo_excel                  TYPE REF TO zcl_excel,
-      lo_worksheet              TYPE REF TO zcl_excel_worksheet,
-      lv_style_protection_guid  TYPE zexcel_cell_style.
-
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '18_BookProtection.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+data: lo_excel                 type ref to zcl_excel,
+      lo_worksheet             type ref to zcl_excel_worksheet,
+      lv_style_protection_guid type zexcel_cell_style.
 
 
-START-OF-SELECTION.
+constants: gc_save_file_name type string value '18_BookProtection.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-  CREATE OBJECT lo_excel.
+
+start-of-selection.
+
+  create object lo_excel.
 
   " Get active sheet
   lo_excel->zif_excel_book_protection~protected     = zif_excel_book_protection=>c_protected.

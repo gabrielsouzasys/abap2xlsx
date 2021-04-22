@@ -1,54 +1,54 @@
-REPORT zdemo_excel41.
+report zdemo_excel41.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE 'ABAP2XLSX Inheritance.xlsx'.
+constants: gc_save_file_name type string value 'ABAP2XLSX Inheritance.xlsx'.
 
 *--------------------------------------------------------------------*
 * Demo inheritance ZCL_EXCEL1
 * Variation of ZCL_EXCEL that creates numerous sheets
 *--------------------------------------------------------------------*
-CLASS lcl_my_zcl_excel1 DEFINITION INHERITING FROM zcl_excel.
-  PUBLIC SECTION.
-    METHODS: constructor IMPORTING iv_sheetcount TYPE i DEFAULT 5
-      RAISING zcx_excel.
-ENDCLASS.
+class lcl_my_zcl_excel1 definition inheriting from zcl_excel.
+  public section.
+    methods: constructor importing iv_sheetcount type i default 5
+                         raising   zcx_excel.
+endclass.
 
-CLASS lcl_my_zcl_excel1 IMPLEMENTATION.
-  METHOD constructor.
-    DATA: lv_sheets_to_create TYPE i.
+class lcl_my_zcl_excel1 implementation.
+  method constructor.
+    data: lv_sheets_to_create type i.
     super->constructor( ).
     lv_sheets_to_create = iv_sheetcount - 1. " one gets created by standard class
-    DO lv_sheets_to_create TIMES.
-      TRY.
+    do lv_sheets_to_create times.
+      try.
           me->add_new_worksheet( ).
-        CATCH zcx_excel.
-      ENDTRY.
-    ENDDO.
+        catch zcx_excel.
+      endtry.
+    enddo.
     me->set_active_sheet_index( 1 ).
 
-  ENDMETHOD.
-ENDCLASS.
+  endmethod.
+endclass.
 
 *--------------------------------------------------------------------*
 * Demo inheritance ZCL_EXCEL_WORKSHEET
 * Variation of ZCL_EXCEL_WORKSHEET ( and ZCL_EXCEL that calls the new type of worksheet )
 * that sets a fixed title
 *--------------------------------------------------------------------*
-CLASS lcl_my_zcl_excel2 DEFINITION INHERITING FROM zcl_excel.
-  PUBLIC SECTION.
-    METHODS: constructor RAISING zcx_excel.
-ENDCLASS.
+class lcl_my_zcl_excel2 definition inheriting from zcl_excel.
+  public section.
+    methods: constructor raising zcx_excel.
+endclass.
 
-CLASS lcl_my_zcl_excel_worksheet DEFINITION INHERITING FROM zcl_excel_worksheet.
-  PUBLIC SECTION.
-    METHODS: constructor IMPORTING ip_excel TYPE REF TO zcl_excel
-                                   ip_title TYPE zexcel_sheet_title OPTIONAL  " Will be ignored - keep parameter for demonstration purpose
-                         RAISING   zcx_excel.
-ENDCLASS.
+class lcl_my_zcl_excel_worksheet definition inheriting from zcl_excel_worksheet.
+  public section.
+    methods: constructor importing ip_excel type ref to zcl_excel
+                                   ip_title type zexcel_sheet_title optional  " Will be ignored - keep parameter for demonstration purpose
+                         raising   zcx_excel.
+endclass.
 
-CLASS lcl_my_zcl_excel2 IMPLEMENTATION.
-  METHOD constructor.
+class lcl_my_zcl_excel2 implementation.
+  method constructor.
 
-    DATA: lo_worksheet TYPE REF TO zcl_excel_worksheet.
+    data: lo_worksheet type ref to zcl_excel_worksheet.
 
     super->constructor( ).
 
@@ -56,47 +56,47 @@ CLASS lcl_my_zcl_excel2 IMPLEMENTATION.
     lo_worksheet = get_active_worksheet( ).
     me->worksheets->remove( lo_worksheet ).
 * and replace it with own version
-    CREATE OBJECT lo_worksheet TYPE lcl_my_zcl_excel_worksheet
-      EXPORTING
+    create object lo_worksheet type lcl_my_zcl_excel_worksheet
+      exporting
         ip_excel = me
         ip_title = 'This title will be ignored'.
     me->worksheets->add( lo_worksheet ).
 
-  ENDMETHOD.
-ENDCLASS.
+  endmethod.
+endclass.
 
-CLASS lcl_my_zcl_excel_worksheet IMPLEMENTATION.
-  METHOD constructor.
+class lcl_my_zcl_excel_worksheet implementation.
+  method constructor.
     super->constructor( ip_excel = ip_excel
                         ip_title = 'Inherited Worksheet' ).
 
-  ENDMETHOD.
-ENDCLASS.
+  endmethod.
+endclass.
 
-DATA: go_excel1 TYPE REF TO lcl_my_zcl_excel1.
-DATA: go_excel2 TYPE REF TO lcl_my_zcl_excel2.
+data: go_excel1 type ref to lcl_my_zcl_excel1.
+data: go_excel2 type ref to lcl_my_zcl_excel2.
 
 
-SELECTION-SCREEN BEGIN OF BLOCK bli WITH FRAME TITLE text-bli.
-PARAMETERS: rbi_1 RADIOBUTTON GROUP rbi DEFAULT 'X' , " Simple inheritance
-            rbi_2 RADIOBUTTON GROUP rbi.
-SELECTION-SCREEN END OF BLOCK bli.
+selection-screen begin of block bli with frame title text-bli.
+parameters: rbi_1 radiobutton group rbi default 'X' , " Simple inheritance
+            rbi_2 radiobutton group rbi.
+selection-screen end of block bli.
 
-INCLUDE zdemo_excel_outputopt_incl.
+include zdemo_excel_outputopt_incl.
 
-END-OF-SELECTION.
+end-of-selection.
 
-  CASE 'X'.
+  case 'X'.
 
-    WHEN rbi_1.                                       " Simple inheritance of zcl_excel, object created directly
-      CREATE OBJECT go_excel1
-        EXPORTING
+    when rbi_1.                                       " Simple inheritance of zcl_excel, object created directly
+      create object go_excel1
+        exporting
           iv_sheetcount = 5.
       lcl_output=>output( go_excel1 ).
 
-    WHEN rbi_2.                                       " Inheritance of zcl_excel_worksheet, inheritance of zcl_excel needed to allow this
-      CREATE OBJECT go_excel2.
+    when rbi_2.                                       " Inheritance of zcl_excel_worksheet, inheritance of zcl_excel needed to allow this
+      create object go_excel2.
       lcl_output=>output( go_excel2 ).
 
 
-  ENDCASE.
+  endcase.

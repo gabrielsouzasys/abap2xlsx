@@ -6,33 +6,33 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel27.
+report zdemo_excel27.
 
-CONSTANTS: c_fish       TYPE string VALUE 'Fish'.
+constants: c_fish       type string value 'Fish'.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_range                TYPE REF TO zcl_excel_range,
-      lo_data_validation      TYPE REF TO zcl_excel_data_validation,
-      lo_style_cond           TYPE REF TO zcl_excel_style_cond,
-      lo_style_1              TYPE REF TO zcl_excel_style,
-      lo_style_2              TYPE REF TO zcl_excel_style,
-      lv_style_1_guid         TYPE zexcel_cell_style,
-      lv_style_2_guid         TYPE zexcel_cell_style,
-      ls_cellis               TYPE zexcel_conditional_cellis.
-
-
-DATA: lv_title          TYPE zexcel_sheet_title.
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '27_ConditionalFormatting.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+data: lo_excel           type ref to zcl_excel,
+      lo_worksheet       type ref to zcl_excel_worksheet,
+      lo_range           type ref to zcl_excel_range,
+      lo_data_validation type ref to zcl_excel_data_validation,
+      lo_style_cond      type ref to zcl_excel_style_cond,
+      lo_style_1         type ref to zcl_excel_style,
+      lo_style_2         type ref to zcl_excel_style,
+      lv_style_1_guid    type zexcel_cell_style,
+      lv_style_2_guid    type zexcel_cell_style,
+      ls_cellis          type zexcel_conditional_cellis.
 
 
-START-OF-SELECTION.
+data: lv_title          type zexcel_sheet_title.
+
+constants: gc_save_file_name type string value '27_ConditionalFormatting.xlsx'.
+include zdemo_excel_outputopt_incl.
+
+
+start-of-selection.
 
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   lo_style_1                        = lo_excel->add_new_style( ).
   lo_style_1->fill->filltype        = zcl_excel_style_fill=>c_fill_solid.

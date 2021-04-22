@@ -5,21 +5,21 @@
 *&
 *&
 *&---------------------------------------------------------------------*
-REPORT  zdemo_excel_comments.
+report  zdemo_excel_comments.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_comment              TYPE REF TO zcl_excel_comment,
-      lo_hyperlink            TYPE REF TO zcl_excel_hyperlink,
-      lv_comment              TYPE string.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_comment   type ref to zcl_excel_comment,
+      lo_hyperlink type ref to zcl_excel_hyperlink,
+      lv_comment   type string.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE 'Comments.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value 'Comments.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -38,7 +38,7 @@ START-OF-SELECTION.
   lo_comment->set_text( ip_ref = 'C18' ip_text = 'Another comment' ).
   lo_worksheet->add_comment( lo_comment ).
   lo_comment = lo_excel->add_new_comment( ).
-  CONCATENATE 'A comment split' cl_abap_char_utilities=>cr_lf 'on 2 lines?' INTO lv_comment.
+  concatenate 'A comment split' cl_abap_char_utilities=>cr_lf 'on 2 lines?' into lv_comment.
   lo_comment->set_text( ip_ref = 'F6' ip_text = lv_comment ).
 
   " Second sheet

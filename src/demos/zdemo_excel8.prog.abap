@@ -6,21 +6,21 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel8.
+report zdemo_excel8.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_range                TYPE REF TO zcl_excel_range.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_range     type ref to zcl_excel_range.
 
-DATA: lv_title          TYPE zexcel_sheet_title.
+data: lv_title          type zexcel_sheet_title.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '08_Range.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '08_Range.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).

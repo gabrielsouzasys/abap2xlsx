@@ -6,21 +6,21 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel1.
+report zdemo_excel1.
 
 
-DATA: lo_excel      TYPE REF TO zcl_excel,
-      lo_worksheet  TYPE REF TO zcl_excel_worksheet,
-      lo_hyperlink  TYPE REF TO zcl_excel_hyperlink,
-      lo_column     TYPE REF TO zcl_excel_column.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_hyperlink type ref to zcl_excel_hyperlink,
+      lo_column    type ref to zcl_excel_column.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '01_HelloWorld.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '01_HelloWorld.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).

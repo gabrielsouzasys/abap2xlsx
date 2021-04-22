@@ -6,24 +6,24 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel17.
+report zdemo_excel17.
 
-DATA: lo_excel                  TYPE REF TO zcl_excel,
-      lo_worksheet              TYPE REF TO zcl_excel_worksheet,
-      lo_style_protection       TYPE REF TO zcl_excel_style,
-      lv_style_protection_guid  TYPE zexcel_cell_style,
-      lo_style                  TYPE REF TO zcl_excel_style,
-      lv_style                  TYPE zexcel_cell_style.
+data: lo_excel                 type ref to zcl_excel,
+      lo_worksheet             type ref to zcl_excel_worksheet,
+      lo_style_protection      type ref to zcl_excel_style,
+      lv_style_protection_guid type zexcel_cell_style,
+      lo_style                 type ref to zcl_excel_style,
+      lv_style                 type zexcel_cell_style.
 
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '17_SheetProtection.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '17_SheetProtection.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-PARAMETERS: p_pwd   TYPE zexcel_aes_password LOWER CASE DEFAULT 'secret'.
+parameters: p_pwd   type zexcel_aes_password lower case default 'secret'.
 
-START-OF-SELECTION.
+start-of-selection.
 
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).

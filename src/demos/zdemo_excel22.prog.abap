@@ -6,40 +6,40 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel22.
+report zdemo_excel22.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_style                TYPE REF TO zcl_excel_style,
-      lo_style_date           TYPE REF TO zcl_excel_style,
-      lo_style_editable       TYPE REF TO zcl_excel_style,
-      lo_data_validation      TYPE REF TO zcl_excel_data_validation.
+data: lo_excel           type ref to zcl_excel,
+      lo_worksheet       type ref to zcl_excel_worksheet,
+      lo_style           type ref to zcl_excel_style,
+      lo_style_date      type ref to zcl_excel_style,
+      lo_style_editable  type ref to zcl_excel_style,
+      lo_data_validation type ref to zcl_excel_data_validation.
 
-DATA: lt_field_catalog        TYPE zexcel_t_fieldcatalog,
-      ls_table_settings       TYPE zexcel_s_table_settings,
-      ls_table_settings_out   TYPE zexcel_s_table_settings.
+data: lt_field_catalog      type zexcel_t_fieldcatalog,
+      ls_table_settings     type zexcel_s_table_settings,
+      ls_table_settings_out type zexcel_s_table_settings.
 
-DATA: lv_style_guid           TYPE zexcel_cell_style.
+data: lv_style_guid           type zexcel_cell_style.
 
-DATA: lv_row            TYPE char10.
+data: lv_row            type char10.
 
-FIELD-SYMBOLS: <fs_field_catalog> TYPE zexcel_s_fieldcatalog.
+field-symbols: <fs_field_catalog> type zexcel_s_fieldcatalog.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '22_itab_fieldcatalog.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '22_itab_fieldcatalog.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
   lo_worksheet->set_title( ip_title = 'PN_MASSIVE' ).
 
-  DATA lt_test TYPE TABLE OF sflight.
-  SELECT * FROM sflight INTO TABLE lt_test. "#EC CI_NOWHERE
+  data lt_test type table of sflight.
+  select * from sflight into table lt_test.             "#EC CI_NOWHERE
 
   " sheet style (white background)
   lo_style = lo_excel->add_new_style( ).
@@ -74,38 +74,38 @@ START-OF-SELECTION.
 
   lt_field_catalog = zcl_excel_common=>get_fieldcatalog( ip_table = lt_test ).
 
-  LOOP AT lt_field_catalog ASSIGNING <fs_field_catalog>.
-    CASE <fs_field_catalog>-fieldname.
-      WHEN 'CARRID'.
+  loop at lt_field_catalog assigning <fs_field_catalog>.
+    case <fs_field_catalog>-fieldname.
+      when 'CARRID'.
         <fs_field_catalog>-position   = 3.
         <fs_field_catalog>-dynpfld    = abap_true.
         <fs_field_catalog>-style      = lo_style->get_guid( ).
-      WHEN 'CONNID'.
+      when 'CONNID'.
         <fs_field_catalog>-position   = 1.
         <fs_field_catalog>-dynpfld    = abap_true.
         <fs_field_catalog>-style      = lo_style->get_guid( ).
-      WHEN 'FLDATE'.
+      when 'FLDATE'.
         <fs_field_catalog>-position   = 2.
         <fs_field_catalog>-dynpfld    = abap_true.
         <fs_field_catalog>-style      = lo_style_date->get_guid( ).
-      WHEN 'PRICE'.
+      when 'PRICE'.
         <fs_field_catalog>-position   = 4.
         <fs_field_catalog>-dynpfld    = abap_true.
         <fs_field_catalog>-style      = lo_style_editable->get_guid( ).
         <fs_field_catalog>-totals_function = zcl_excel_table=>totals_function_sum.
-      WHEN OTHERS.
+      when others.
         <fs_field_catalog>-dynpfld = abap_false.
-    ENDCASE.
-  ENDLOOP.
+    endcase.
+  endloop.
 
   ls_table_settings-table_style  = zcl_excel_table=>builtinstyle_medium2.
   ls_table_settings-show_row_stripes = abap_true.
 
-  lo_worksheet->bind_table( EXPORTING
+  lo_worksheet->bind_table( exporting
                               ip_table          = lt_test
                               it_field_catalog  = lt_field_catalog
                               is_table_settings = ls_table_settings
-                            IMPORTING
+                            importing
                               es_table_settings = ls_table_settings_out ).
 
   lo_worksheet->freeze_panes( ip_num_rows = 3 ). "freeze column headers when scrolling
@@ -113,8 +113,8 @@ START-OF-SELECTION.
   lo_data_validation                  = lo_worksheet->add_new_data_validation( ).
   lo_data_validation->type            = zcl_excel_data_validation=>c_type_custom.
   lv_row = ls_table_settings_out-top_left_row.
-  CONDENSE lv_row.
-  CONCATENATE 'ISNUMBER(' ls_table_settings_out-top_left_column lv_row ')' INTO lo_data_validation->formula1.
+  condense lv_row.
+  concatenate 'ISNUMBER(' ls_table_settings_out-top_left_column lv_row ')' into lo_data_validation->formula1.
   lo_data_validation->cell_row        = ls_table_settings_out-top_left_row.
   lo_data_validation->cell_column     = ls_table_settings_out-top_left_column.
   lo_data_validation->cell_row_to     = ls_table_settings_out-bottom_right_row.

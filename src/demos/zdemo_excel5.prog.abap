@@ -6,23 +6,23 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel5.
+report zdemo_excel5.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_style_cond           TYPE REF TO zcl_excel_style_cond.
+data: lo_excel      type ref to zcl_excel,
+      lo_worksheet  type ref to zcl_excel_worksheet,
+      lo_style_cond type ref to zcl_excel_style_cond.
 
-DATA: ls_iconset              TYPE zexcel_conditional_iconset.
-
-
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '05_Conditional.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+data: ls_iconset              type zexcel_conditional_iconset.
 
 
-START-OF-SELECTION.
 
-  CREATE OBJECT lo_excel.
+constants: gc_save_file_name type string value '05_Conditional.xlsx'.
+include zdemo_excel_outputopt_incl.
+
+
+start-of-selection.
+
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).

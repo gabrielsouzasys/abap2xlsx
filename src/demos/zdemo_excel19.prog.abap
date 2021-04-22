@@ -6,23 +6,23 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel19.
+report zdemo_excel19.
 
-TYPE-POOLS: abap.
+type-pools: abap.
 
-DATA: lo_excel                  TYPE REF TO zcl_excel,
-      lo_worksheet              TYPE REF TO zcl_excel_worksheet.
-
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '19_SetActiveSheet.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
-
-PARAMETERS: p_noout TYPE abap_bool DEFAULT abap_true.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet.
 
 
-START-OF-SELECTION.
+constants: gc_save_file_name type string value '19_SetActiveSheet.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-  CREATE OBJECT lo_excel.
+parameters: p_noout type abap_bool default abap_true.
+
+
+start-of-selection.
+
+  create object lo_excel.
 
   " First Worksheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -39,17 +39,17 @@ START-OF-SELECTION.
   lo_worksheet->set_title( 'Third' ).
   lo_worksheet->set_cell( ip_row = 1 ip_column = 'A' ip_value = 'This is Sheet 3' ).
 
-  IF p_noout EQ abap_false.
+  if p_noout eq abap_false.
     " lo_excel->set_active_sheet_index_by_name( data_sheet_name ).
-    DATA: active_sheet_index TYPE zexcel_active_worksheet.
+    data: active_sheet_index type zexcel_active_worksheet.
     active_sheet_index = lo_excel->get_active_sheet_index( ).
-    WRITE: 'Sheet Index before: ', active_sheet_index.
-  ENDIF.
+    write: 'Sheet Index before: ', active_sheet_index.
+  endif.
   lo_excel->set_active_sheet_index( '2' ).
-  IF p_noout EQ abap_false.
+  if p_noout eq abap_false.
     active_sheet_index = lo_excel->get_active_sheet_index( ).
-    WRITE: 'Sheet Index after: ', active_sheet_index.
-  ENDIF.
+    write: 'Sheet Index after: ', active_sheet_index.
+  endif.
 
 
 *** Create output

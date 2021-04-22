@@ -1,28 +1,28 @@
 *&---------------------------------------------------------------------*
 *& Report  ZDEMO_EXCEL36
-REPORT zdemo_excel36.
+report zdemo_excel36.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_column               TYPE REF TO zcl_excel_column,
-      col                     TYPE i.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_column    type ref to zcl_excel_column,
+      col          type i.
 
-DATA: lo_style_arial20      TYPE REF TO zcl_excel_style,
-      lo_style_times11      TYPE REF TO zcl_excel_style,
-      lo_style_cambria8red  TYPE REF TO zcl_excel_style.
+data: lo_style_arial20     type ref to zcl_excel_style,
+      lo_style_times11     type ref to zcl_excel_style,
+      lo_style_cambria8red type ref to zcl_excel_style.
 
-DATA: lv_style_arial20_guid     TYPE zexcel_cell_style,
-      lv_style_times11_guid     TYPE zexcel_cell_style,
-      lv_style_cambria8red_guid TYPE zexcel_cell_style.
+data: lv_style_arial20_guid     type zexcel_cell_style,
+      lv_style_times11_guid     type zexcel_cell_style,
+      lv_style_cambria8red_guid type zexcel_cell_style.
 
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '36_DefaultStyles.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '36_DefaultStyles.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Create a bold / italic style
   lo_style_arial20                  = lo_excel->add_new_style( ).
@@ -88,17 +88,17 @@ START-OF-SELECTION.
 
 
 * Set entry into each of the first 10 columns
-  DO 20 TIMES.
+  do 20 times.
     col = sy-index.
-    CASE col.
-      WHEN 2 " B
-        OR 3 " C
-        OR 6." F
+    case col.
+      when 2 " B
+        or 3 " C
+        or 6." F
         lo_worksheet->set_cell( ip_column = col ip_row = 6 ip_value = 'Times 11' ).
-      WHEN OTHERS.
+      when others.
         lo_worksheet->set_cell( ip_column = col ip_row = 6 ip_value = 'Arial 20' ).
-    ENDCASE.
-  ENDDO.
+    endcase.
+  enddo.
 
   lo_worksheet->set_cell( ip_column = 2 ip_row = 1 ip_value = space ). " Missing feature "set active cell - use this to simulate that
 

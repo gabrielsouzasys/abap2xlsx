@@ -6,26 +6,26 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT ztest_excel_image_header.
+report ztest_excel_image_header.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_drawing              TYPE REF TO zcl_excel_drawing,
-      ls_key TYPE wwwdatatab,
-      ls_header TYPE zexcel_s_worksheet_head_foot,
-      ls_footer TYPE zexcel_s_worksheet_head_foot,
-      lv_content TYPE xstring.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_drawing   type ref to zcl_excel_drawing,
+      ls_key       type wwwdatatab,
+      ls_header    type zexcel_s_worksheet_head_foot,
+      ls_footer    type zexcel_s_worksheet_head_foot,
+      lv_content   type xstring.
 
 
-DATA: ls_io TYPE skwf_io.
+data: ls_io type skwf_io.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE 'Image_Header_Footer.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value 'Image_Header_Footer.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
 **********************************************************************
 *** Header Center
@@ -97,7 +97,7 @@ START-OF-SELECTION.
                              ip_height = 75 ).
 
 
-  CLEAR ls_header.
+  clear ls_header.
   ls_header-left_image = ls_footer-left_image = lo_drawing.
 
   lo_worksheet->sheet_setup->set_header_footer( ip_odd_header = ls_header ).

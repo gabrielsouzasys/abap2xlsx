@@ -6,52 +6,52 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel11.
+report zdemo_excel11.
 
-TYPE-POOLS: abap.
+type-pools: abap.
 
-DATA: central_search TYPE bapibus1006_central_search,
-      addressdata_search TYPE bapibus1006_addr_search,
-      others_search TYPE bapibus1006_other_data.
-DATA: searchresult TYPE TABLE OF bapibus1006_bp_addr,
-      return TYPE TABLE OF bapiret2.
-DATA: lines TYPE i.
-FIELD-SYMBOLS: <searchresult_line> LIKE LINE OF searchresult.
-DATA: centraldata             TYPE bapibus1006_central,
-      centraldataperson       TYPE bapibus1006_central_person,
-      centraldataorganization TYPE bapibus1006_central_organ.
-DATA: addressdata TYPE bapibus1006_address.
-DATA: relationships TYPE TABLE OF bapibus1006_relations.
-FIELD-SYMBOLS: <relationship> LIKE LINE OF relationships.
-DATA: relationship_centraldata TYPE bapibus1006002_central.
-DATA: relationship_addresses TYPE TABLE OF bapibus1006002_addresses.
-FIELD-SYMBOLS: <relationship_address> LIKE LINE OF relationship_addresses.
+data: central_search     type bapibus1006_central_search,
+      addressdata_search type bapibus1006_addr_search,
+      others_search      type bapibus1006_other_data.
+data: searchresult type table of bapibus1006_bp_addr,
+      return       type table of bapiret2.
+data: lines type i.
+field-symbols: <searchresult_line> like line of searchresult.
+data: centraldata             type bapibus1006_central,
+      centraldataperson       type bapibus1006_central_person,
+      centraldataorganization type bapibus1006_central_organ.
+data: addressdata type bapibus1006_address.
+data: relationships type table of bapibus1006_relations.
+field-symbols: <relationship> like line of relationships.
+data: relationship_centraldata type bapibus1006002_central.
+data: relationship_addresses type table of bapibus1006002_addresses.
+field-symbols: <relationship_address> like line of relationship_addresses.
 
-DATA: lt_download TYPE TABLE OF zexcel_s_org_rel.
-FIELD-SYMBOLS: <download> LIKE LINE OF lt_download.
+data: lt_download type table of zexcel_s_org_rel.
+field-symbols: <download> like line of lt_download.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '11_Export_Org_and_Contact.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '11_Export_Org_and_Contact.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-PARAMETERS: md TYPE flag RADIOBUTTON GROUP act.
+parameters: md type flag radiobutton group act.
 
-SELECTION-SCREEN BEGIN OF BLOCK a WITH FRAME TITLE text-00a.
-PARAMETERS: partnerc TYPE bu_type   DEFAULT 2, " Organizations
-            postlcod TYPE ad_pstcd1 DEFAULT '8334*',
-            country  TYPE land1     DEFAULT 'DE',
-            maxsel   TYPE bu_maxsel DEFAULT 100.
-SELECTION-SCREEN END OF BLOCK a.
+selection-screen begin of block a with frame title text-00a.
+parameters: partnerc type bu_type   default 2, " Organizations
+            postlcod type ad_pstcd1 default '8334*',
+            country  type land1     default 'DE',
+            maxsel   type bu_maxsel default 100.
+selection-screen end of block a.
 
-PARAMETERS: rel TYPE flag RADIOBUTTON GROUP act DEFAULT 'X'.
+parameters: rel type flag radiobutton group act default 'X'.
 
-SELECTION-SCREEN BEGIN OF BLOCK b WITH FRAME TITLE text-00b.
-PARAMETERS: reltyp TYPE bu_reltyp DEFAULT 'BUR011',
-            partner TYPE bu_partner DEFAULT '191'.
-SELECTION-SCREEN END OF BLOCK b.
+selection-screen begin of block b with frame title text-00b.
+parameters: reltyp  type bu_reltyp default 'BUR011',
+            partner type bu_partner default '191'.
+selection-screen end of block b.
 
-START-OF-SELECTION.
-  IF md = abap_true.
+start-of-selection.
+  if md = abap_true.
     " Read all Companies by Master Data
     central_search-partnercategory = partnerc.
     addressdata_search-postl_cod1  = postlcod.
@@ -59,160 +59,160 @@ START-OF-SELECTION.
     others_search-maxsel           = maxsel.
     others_search-no_search_for_contactperson = 'X'.
 
-    CALL FUNCTION 'BAPI_BUPA_SEARCH_2'
-      EXPORTING
+    call function 'BAPI_BUPA_SEARCH_2'
+      exporting
         centraldata  = central_search
         addressdata  = addressdata_search
-        OTHERS       = others_search
-      TABLES
+        others       = others_search
+      tables
         searchresult = searchresult
         return       = return.
 
-    SORT searchresult BY partner.
-    DELETE ADJACENT DUPLICATES FROM searchresult COMPARING partner.
-  ELSEIF rel = abap_true.
+    sort searchresult by partner.
+    delete adjacent duplicates from searchresult comparing partner.
+  elseif rel = abap_true.
     " Read by Relationship
-    SELECT but050~partner1 AS partner FROM but050
-      INNER JOIN but000 ON but000~partner = but050~partner1 AND but000~type = '2'
-      INTO CORRESPONDING FIELDS OF TABLE searchresult
-      WHERE but050~partner2 = partner
-        AND but050~reltyp   = reltyp.
-  ENDIF.
+    select but050~partner1 as partner from but050
+      inner join but000 on but000~partner = but050~partner1 and but000~type = '2'
+      into corresponding fields of table searchresult
+      where but050~partner2 = partner
+        and but050~reltyp   = reltyp.
+  endif.
 
-  DESCRIBE TABLE searchresult LINES lines.
-  WRITE: / 'Number of search results: ', lines.
+  describe table searchresult lines lines.
+  write: / 'Number of search results: ', lines.
 
-  LOOP AT searchresult ASSIGNING <searchresult_line>.
+  loop at searchresult assigning <searchresult_line>.
     " Read Details of Organization
-    CALL FUNCTION 'BAPI_BUPA_CENTRAL_GETDETAIL'
-      EXPORTING
+    call function 'BAPI_BUPA_CENTRAL_GETDETAIL'
+      exporting
         businesspartner         = <searchresult_line>-partner
-      IMPORTING
+      importing
         centraldataorganization = centraldataorganization.
     " Read Standard Address of Organization
-    CALL FUNCTION 'BAPI_BUPA_ADDRESS_GETDETAIL'
-      EXPORTING
+    call function 'BAPI_BUPA_ADDRESS_GETDETAIL'
+      exporting
         businesspartner = <searchresult_line>-partner
-      IMPORTING
+      importing
         addressdata     = addressdata.
 
     " Add Organization to Download
-    APPEND INITIAL LINE TO lt_download ASSIGNING <download>.
+    append initial line to lt_download assigning <download>.
     " Fill Organization Partner Numbers
-    CALL FUNCTION 'BAPI_BUPA_GET_NUMBERS'
-      EXPORTING
+    call function 'BAPI_BUPA_GET_NUMBERS'
+      exporting
         businesspartner        = <searchresult_line>-partner
-      IMPORTING
+      importing
         businesspartnerout     = <download>-org_number
         businesspartnerguidout = <download>-org_guid.
 
-    MOVE-CORRESPONDING centraldataorganization TO <download>.
-    MOVE-CORRESPONDING addressdata TO <download>.
-    CLEAR: addressdata.
+    move-corresponding centraldataorganization to <download>.
+    move-corresponding addressdata to <download>.
+    clear: addressdata.
 
     " Read all Relationships
-    CLEAR: relationships.
-    CALL FUNCTION 'BAPI_BUPA_RELATIONSHIPS_GET'
-      EXPORTING
+    clear: relationships.
+    call function 'BAPI_BUPA_RELATIONSHIPS_GET'
+      exporting
         businesspartner = <searchresult_line>-partner
-      TABLES
+      tables
         relationships   = relationships.
-    DELETE relationships WHERE relationshipcategory <> 'BUR001'.
-    LOOP AT relationships ASSIGNING <relationship>.
+    delete relationships where relationshipcategory <> 'BUR001'.
+    loop at relationships assigning <relationship>.
       " Read details of Contact person
-      CALL FUNCTION 'BAPI_BUPA_CENTRAL_GETDETAIL'
-        EXPORTING
+      call function 'BAPI_BUPA_CENTRAL_GETDETAIL'
+        exporting
           businesspartner   = <relationship>-partner2
-        IMPORTING
+        importing
           centraldata       = centraldata
           centraldataperson = centraldataperson.
       " Read details of the Relationship
-      CALL FUNCTION 'BAPI_BUPR_CONTP_GETDETAIL'
-        EXPORTING
+      call function 'BAPI_BUPR_CONTP_GETDETAIL'
+        exporting
           businesspartner = <relationship>-partner1
           contactperson   = <relationship>-partner2
-        IMPORTING
+        importing
           centraldata     = relationship_centraldata.
       " Read relationship address
-      CLEAR: relationship_addresses.
+      clear: relationship_addresses.
 
-      CALL FUNCTION 'BAPI_BUPR_CONTP_ADDRESSES_GET'
-        EXPORTING
+      call function 'BAPI_BUPR_CONTP_ADDRESSES_GET'
+        exporting
           businesspartner = <relationship>-partner1
           contactperson   = <relationship>-partner2
-        TABLES
+        tables
           addresses       = relationship_addresses.
 
-      READ TABLE relationship_addresses
-        ASSIGNING <relationship_address>
-        WITH KEY standardaddress = 'X'.
+      read table relationship_addresses
+        assigning <relationship_address>
+        with key standardaddress = 'X'.
 
-      IF sy-subrc = 0.
+      if sy-subrc = 0.
         " Read Relationship Address
-        CLEAR addressdata.
-        CALL FUNCTION 'BAPI_BUPA_ADDRESS_GETDETAIL'
-          EXPORTING
+        clear addressdata.
+        call function 'BAPI_BUPA_ADDRESS_GETDETAIL'
+          exporting
             businesspartner = <searchresult_line>-partner
             addressguid     = <relationship_address>-addressguid
-          IMPORTING
+          importing
             addressdata     = addressdata.
 
-        APPEND INITIAL LINE TO lt_download ASSIGNING <download>.
-        CALL FUNCTION 'BAPI_BUPA_GET_NUMBERS'
-          EXPORTING
+        append initial line to lt_download assigning <download>.
+        call function 'BAPI_BUPA_GET_NUMBERS'
+          exporting
             businesspartner        = <relationship>-partner1
-          IMPORTING
+          importing
             businesspartnerout     = <download>-org_number
             businesspartnerguidout = <download>-org_guid.
 
-        CALL FUNCTION 'BAPI_BUPA_GET_NUMBERS'
-          EXPORTING
+        call function 'BAPI_BUPA_GET_NUMBERS'
+          exporting
             businesspartner        = <relationship>-partner2
-          IMPORTING
+          importing
             businesspartnerout     = <download>-contpers_number
             businesspartnerguidout = <download>-contpers_guid.
 
-        MOVE-CORRESPONDING centraldataorganization TO <download>.
-        MOVE-CORRESPONDING addressdata TO <download>.
-        MOVE-CORRESPONDING centraldataperson TO <download>.
-        MOVE-CORRESPONDING relationship_centraldata TO <download>.
+        move-corresponding centraldataorganization to <download>.
+        move-corresponding addressdata to <download>.
+        move-corresponding centraldataperson to <download>.
+        move-corresponding relationship_centraldata to <download>.
 
-        WRITE: / <relationship>-partner1, <relationship>-partner2.
-        WRITE: centraldataorganization-name1(20), centraldataorganization-name2(10).
-        WRITE: centraldataperson-firstname(15), centraldataperson-lastname(15).
-        WRITE: addressdata-street(25), addressdata-house_no,
+        write: / <relationship>-partner1, <relationship>-partner2.
+        write: centraldataorganization-name1(20), centraldataorganization-name2(10).
+        write: centraldataperson-firstname(15), centraldataperson-lastname(15).
+        write: addressdata-street(25), addressdata-house_no,
                addressdata-postl_cod1, addressdata-city(25).
-      ENDIF.
-    ENDLOOP.
+      endif.
+    endloop.
 
-  ENDLOOP.
+  endloop.
 
-  DATA: lo_excel                TYPE REF TO zcl_excel,
-        lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-        lo_style_body           TYPE REF TO zcl_excel_style,
-        lo_border_dark          TYPE REF TO zcl_excel_style_border,
-        lo_column               TYPE REF TO zcl_excel_column,
-        lo_row                  TYPE REF TO zcl_excel_row.
+  data: lo_excel       type ref to zcl_excel,
+        lo_worksheet   type ref to zcl_excel_worksheet,
+        lo_style_body  type ref to zcl_excel_style,
+        lo_border_dark type ref to zcl_excel_style_border,
+        lo_column      type ref to zcl_excel_column,
+        lo_row         type ref to zcl_excel_row.
 
-  DATA: lv_style_body_even_guid   TYPE zexcel_cell_style,
-        lv_style_body_green       TYPE zexcel_cell_style.
+  data: lv_style_body_even_guid type zexcel_cell_style,
+        lv_style_body_green     type zexcel_cell_style.
 
-  DATA: row TYPE zexcel_cell_row.
+  data: row type zexcel_cell_row.
 
-  DATA: lt_field_catalog        TYPE zexcel_t_fieldcatalog,
-        ls_table_settings       TYPE zexcel_s_table_settings.
+  data: lt_field_catalog  type zexcel_t_fieldcatalog,
+        ls_table_settings type zexcel_s_table_settings.
 
-  DATA: column       TYPE zexcel_cell_column,
-        column_alpha TYPE zexcel_cell_column_alpha,
-        value        TYPE zexcel_cell_value.
+  data: column       type zexcel_cell_column,
+        column_alpha type zexcel_cell_column_alpha,
+        value        type zexcel_cell_value.
 
-  FIELD-SYMBOLS: <fs_field_catalog> TYPE zexcel_s_fieldcatalog.
+  field-symbols: <fs_field_catalog> type zexcel_s_fieldcatalog.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Create border object
-  CREATE OBJECT lo_border_dark.
+  create object lo_border_dark.
   lo_border_dark->border_color-rgb = zcl_excel_style_color=>c_black.
   lo_border_dark->border_style = zcl_excel_style_border=>c_border_thin.
   "Create style with border even
@@ -232,66 +232,66 @@ START-OF-SELECTION.
 
   lt_field_catalog = zcl_excel_common=>get_fieldcatalog( ip_table = lt_download ).
 
-  LOOP AT lt_field_catalog ASSIGNING <fs_field_catalog>.
-    CASE <fs_field_catalog>-fieldname.
-      WHEN 'ORG_NUMBER'.
+  loop at lt_field_catalog assigning <fs_field_catalog>.
+    case <fs_field_catalog>-fieldname.
+      when 'ORG_NUMBER'.
         <fs_field_catalog>-position   = 1.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'CONTPERS_NUMBER'.
+      when 'CONTPERS_NUMBER'.
         <fs_field_catalog>-position   = 2.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'NAME1'.
+      when 'NAME1'.
         <fs_field_catalog>-position   = 3.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'NAME2'.
+      when 'NAME2'.
         <fs_field_catalog>-position   = 4.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'STREET'.
+      when 'STREET'.
         <fs_field_catalog>-position   = 5.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'HOUSE_NO'.
+      when 'HOUSE_NO'.
         <fs_field_catalog>-position   = 6.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'POSTL_COD1'.
+      when 'POSTL_COD1'.
         <fs_field_catalog>-position   = 7.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'CITY'.
+      when 'CITY'.
         <fs_field_catalog>-position   = 8.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'COUNTRYISO'.
+      when 'COUNTRYISO'.
         <fs_field_catalog>-position   = 9.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'FIRSTNAME'.
+      when 'FIRSTNAME'.
         <fs_field_catalog>-position   = 10.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'LASTNAME'.
+      when 'LASTNAME'.
         <fs_field_catalog>-position   = 11.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'FUNCTIONNAME'.
+      when 'FUNCTIONNAME'.
         <fs_field_catalog>-position   = 12.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'DEPARTMENTNAME'.
+      when 'DEPARTMENTNAME'.
         <fs_field_catalog>-position   = 13.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'TEL1_NUMBR'.
+      when 'TEL1_NUMBR'.
         <fs_field_catalog>-position   = 14.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'TEL1_EXT'.
+      when 'TEL1_EXT'.
         <fs_field_catalog>-position   = 15.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'FAX_NUMBER'.
+      when 'FAX_NUMBER'.
         <fs_field_catalog>-position   = 16.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'FAX_EXTENS'.
+      when 'FAX_EXTENS'.
         <fs_field_catalog>-position   = 17.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'E_MAIL'.
+      when 'E_MAIL'.
         <fs_field_catalog>-position   = 18.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN OTHERS.
+      when others.
         <fs_field_catalog>-dynpfld = abap_false.
-    ENDCASE.
-  ENDLOOP.
+    endcase.
+  endloop.
 
   ls_table_settings-top_left_column = 'A'.
   ls_table_settings-top_left_row    = '2'.
@@ -300,10 +300,10 @@ START-OF-SELECTION.
   lo_worksheet->bind_table( ip_table          = lt_download
                             is_table_settings = ls_table_settings
                             it_field_catalog  = lt_field_catalog ).
-  LOOP AT lt_download ASSIGNING <download>.
+  loop at lt_download assigning <download>.
     row = sy-tabix + 2.
-    IF    NOT <download>-org_number IS INITIAL
-      AND <download>-contpers_number IS INITIAL.
+    if    not <download>-org_number is initial
+      and <download>-contpers_number is initial.
       " Mark fields of Organization which can be changed green
       lo_worksheet->set_cell_style(
           ip_column = 'C'
@@ -316,8 +316,8 @@ START-OF-SELECTION.
           ip_style  = lv_style_body_green
       ).
 *        CATCH zcx_excel.    " Exceptions for ABAP2XLSX
-    ELSEIF NOT <download>-org_number IS INITIAL
-       AND NOT <download>-contpers_number IS INITIAL.
+    elseif not <download>-org_number is initial
+       and not <download>-contpers_number is initial.
       " Mark fields of Relationship which can be changed green
       lo_worksheet->set_cell_style(
           ip_column = 'L' ip_row    = row ip_style  = lv_style_body_green
@@ -340,11 +340,11 @@ START-OF-SELECTION.
       lo_worksheet->set_cell_style(
           ip_column = 'R' ip_row    = row ip_style  = lv_style_body_green
       ).
-    ENDIF.
-  ENDLOOP.
+    endif.
+  endloop.
   " Add Fieldnames in first row and hide the row
-  LOOP AT lt_field_catalog ASSIGNING <fs_field_catalog>
-    WHERE position <> '' AND dynpfld = abap_true.
+  loop at lt_field_catalog assigning <fs_field_catalog>
+    where position <> '' and dynpfld = abap_true.
     column = <fs_field_catalog>-position.
     column_alpha = zcl_excel_common=>convert_column2alpha( column ).
     value = <fs_field_catalog>-fieldname.
@@ -352,23 +352,23 @@ START-OF-SELECTION.
                             ip_row    = 1
                             ip_value  = value
                             ip_style  = lv_style_body_even_guid ).
-  ENDLOOP.
+  endloop.
   " Hide first row
   lo_row = lo_worksheet->get_row( 1 ).
   lo_row->set_visible( abap_false ).
 
-  DATA: highest_column TYPE zexcel_cell_column,
-        count TYPE int4,
-        col_alpha TYPE zexcel_cell_column_alpha.
+  data: highest_column type zexcel_cell_column,
+        count          type int4,
+        col_alpha      type zexcel_cell_column_alpha.
 
   highest_column = lo_worksheet->get_highest_column( ).
   count = 1.
-  WHILE count <= highest_column.
+  while count <= highest_column.
     col_alpha = zcl_excel_common=>convert_column2alpha( ip_column = count ).
     lo_column = lo_worksheet->get_column( ip_column = col_alpha ).
     lo_column->set_auto_size( ip_auto_size = abap_true ).
     count = count + 1.
-  ENDWHILE.
+  endwhile.
 
 *** Create output
   lcl_output=>output( lo_excel ).

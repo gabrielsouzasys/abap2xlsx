@@ -6,45 +6,45 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel3.
+report zdemo_excel3.
 
-TYPE-POOLS: abap.
+type-pools: abap.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_column               TYPE REF TO zcl_excel_column.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_column    type ref to zcl_excel_column.
 
-DATA: ls_table_settings       TYPE zexcel_s_table_settings.
-
-
-DATA: lv_title TYPE zexcel_sheet_title,
-      lt_carr  TYPE TABLE OF scarr,
-      row TYPE zexcel_cell_row VALUE 2,
-      lo_range TYPE REF TO zcl_excel_range.
-DATA: lo_data_validation  TYPE REF TO zcl_excel_data_validation.
-FIELD-SYMBOLS: <carr> LIKE LINE OF lt_carr.
-
-CONSTANTS: c_airlines TYPE string VALUE 'Airlines'.
+data: ls_table_settings       type zexcel_s_table_settings.
 
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '03_iTab.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+data: lv_title type zexcel_sheet_title,
+      lt_carr  type table of scarr,
+      row      type zexcel_cell_row value 2,
+      lo_range type ref to zcl_excel_range.
+data: lo_data_validation  type ref to zcl_excel_data_validation.
+field-symbols: <carr> like line of lt_carr.
 
-PARAMETERS: p_empty TYPE flag.
+constants: c_airlines type string value 'Airlines'.
 
-START-OF-SELECTION.
+
+constants: gc_save_file_name type string value '03_iTab.xlsx'.
+include zdemo_excel_outputopt_incl.
+
+parameters: p_empty type flag.
+
+start-of-selection.
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
   lo_worksheet->set_title( ip_title = 'Internal table' ).
 
-  DATA lt_test TYPE TABLE OF sflight.
+  data lt_test type table of sflight.
 
-  IF p_empty <> abap_true.
-    SELECT * FROM sflight INTO TABLE lt_test. "#EC CI_NOWHERE
-  ENDIF.
+  if p_empty <> abap_true.
+    select * from sflight into table lt_test.           "#EC CI_NOWHERE
+  endif.
 
   ls_table_settings-table_style       = zcl_excel_table=>builtinstyle_medium2.
   ls_table_settings-show_row_stripes  = abap_true.
@@ -62,11 +62,11 @@ START-OF-SELECTION.
   lv_title = 'Data Validation'.
   lo_worksheet->set_title( lv_title ).
   lo_worksheet->set_cell( ip_row = 1 ip_column = 'A' ip_value = c_airlines ).
-  SELECT * FROM scarr INTO TABLE lt_carr. "#EC CI_NOWHERE
-  LOOP AT lt_carr ASSIGNING <carr>.
+  select * from scarr into table lt_carr.               "#EC CI_NOWHERE
+  loop at lt_carr assigning <carr>.
     lo_worksheet->set_cell( ip_row = row ip_column = 'A' ip_value = <carr>-carrid ).
     row = row + 1.
-  ENDLOOP.
+  endloop.
   row = row - 1.
   lo_range            = lo_excel->add_new_range( ).
   lo_range->name      = c_airlines.

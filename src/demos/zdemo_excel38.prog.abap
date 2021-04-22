@@ -1,37 +1,37 @@
-REPORT zdemo_excel38.
+report zdemo_excel38.
 
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_column               TYPE REF TO zcl_excel_column,
-      lo_drawing              TYPE REF TO zcl_excel_drawing.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_column    type ref to zcl_excel_column,
+      lo_drawing   type ref to zcl_excel_drawing.
 
-TYPES: BEGIN OF gty_icon,
+types: begin of gty_icon,
 *         name      TYPE icon_name, "Fix #228
-         name      TYPE iconname,   "Fix #228
-         objid     TYPE w3objid,
-       END OF gty_icon,
-       gtyt_icon TYPE STANDARD TABLE OF gty_icon WITH NON-UNIQUE DEFAULT KEY.
+         name  type iconname,   "Fix #228
+         objid type w3objid,
+       end of gty_icon,
+       gtyt_icon type standard table of gty_icon with non-unique default key.
 
-DATA: lt_icon                 TYPE gtyt_icon,
-      lv_row                  TYPE sytabix,
-      ls_wwwdatatab           TYPE wwwdatatab,
-      lt_mimedata             TYPE STANDARD TABLE OF w3mime WITH NON-UNIQUE DEFAULT KEY,
-      lv_xstring              TYPE xstring.
+data: lt_icon       type gtyt_icon,
+      lv_row        type sytabix,
+      ls_wwwdatatab type wwwdatatab,
+      lt_mimedata   type standard table of w3mime with non-unique default key,
+      lv_xstring    type xstring.
 
-FIELD-SYMBOLS: <icon>         LIKE LINE OF lt_icon,
-               <mimedata>     LIKE LINE OF lt_mimedata.
+field-symbols: <icon>     like line of lt_icon,
+               <mimedata> like line of lt_mimedata.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '38_SAP-Icons.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '38_SAP-Icons.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-TABLES: icon.
-SELECT-OPTIONS: s_icon FOR icon-name DEFAULT 'ICON_LED_*' OPTION CP.
+tables: icon.
+select-options: s_icon for icon-name default 'ICON_LED_*' option cp.
 
-START-OF-SELECTION.
+start-of-selection.
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -42,12 +42,12 @@ START-OF-SELECTION.
   lo_column->set_auto_size( 'X' ).
 
 * Get all icons
-  SELECT name
-    INTO TABLE lt_icon
-    FROM icon
-    WHERE name IN s_icon
-    ORDER BY name.
-  LOOP AT lt_icon ASSIGNING <icon>.
+  select name
+    into table lt_icon
+    from icon
+    where name in s_icon
+    order by name.
+  loop at lt_icon assigning <icon>.
 
     lv_row = sy-tabix.
 *--------------------------------------------------------------------*
@@ -61,38 +61,38 @@ START-OF-SELECTION.
 *--------------------------------------------------------------------*
 
 * Get key
-    SELECT SINGLE objid
-      INTO <icon>-objid
-      FROM wwwdata
-      WHERE text = <icon>-name.
-    CHECK sy-subrc = 0.  " :o(
+    select single objid
+      into <icon>-objid
+      from wwwdata
+      where text = <icon>-name.
+    check sy-subrc = 0.  " :o(
     lo_worksheet->set_cell( ip_row = lv_row
                             ip_column = 'B'
                             ip_value = <icon>-objid ).
 
 * Load mimedata
-    CLEAR lt_mimedata.
-    CLEAR ls_wwwdatatab.
+    clear lt_mimedata.
+    clear ls_wwwdatatab.
     ls_wwwdatatab-relid = 'MI' .
     ls_wwwdatatab-objid = <icon>-objid.
-    CALL FUNCTION 'WWWDATA_IMPORT'
-      EXPORTING
+    call function 'WWWDATA_IMPORT'
+      exporting
         key               = ls_wwwdatatab
-      TABLES
+      tables
         mime              = lt_mimedata
-      EXCEPTIONS
+      exceptions
         wrong_object_type = 1
         import_error      = 2
-        OTHERS            = 3.
-    CHECK sy-subrc = 0.  " :o(
+        others            = 3.
+    check sy-subrc = 0.  " :o(
 
     lo_drawing = lo_excel->add_new_drawing( ).
     lo_drawing->set_position( ip_from_row = lv_row
                               ip_from_col = 'C' ).
-    CLEAR lv_xstring.
-    LOOP AT lt_mimedata ASSIGNING <mimedata>.
-      CONCATENATE lv_xstring <mimedata>-line INTO lv_xstring IN BYTE MODE.
-    ENDLOOP.
+    clear lv_xstring.
+    loop at lt_mimedata assigning <mimedata>.
+      concatenate lv_xstring <mimedata>-line into lv_xstring in byte mode.
+    endloop.
 
     lo_drawing->set_media( ip_media      = lv_xstring
                            ip_media_type = zcl_excel_drawing=>c_media_type_jpg
@@ -100,7 +100,7 @@ START-OF-SELECTION.
                            ip_height     = 14  ).
     lo_worksheet->add_drawing( lo_drawing ).
 
-  ENDLOOP.
+  endloop.
 
 *** Create output
   lcl_output=>output( lo_excel ).

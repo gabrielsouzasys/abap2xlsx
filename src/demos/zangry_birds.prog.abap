@@ -6,78 +6,78 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zangry_birds.
+report zangry_birds.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_excel_writer         TYPE REF TO zif_excel_writer,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_border_light         TYPE REF TO zcl_excel_style_border,
-      lo_style_color0         TYPE REF TO zcl_excel_style,
-      lo_style_color1         TYPE REF TO zcl_excel_style,
-      lo_style_color2         TYPE REF TO zcl_excel_style,
-      lo_style_color3         TYPE REF TO zcl_excel_style,
-      lo_style_color4         TYPE REF TO zcl_excel_style,
-      lo_style_color5         TYPE REF TO zcl_excel_style,
-      lo_style_color6         TYPE REF TO zcl_excel_style,
-      lo_style_color7         TYPE REF TO zcl_excel_style,
-      lo_style_credit         TYPE REF TO zcl_excel_style,
-      lo_style_link           TYPE REF TO zcl_excel_style,
-      lo_column               TYPE REF TO zcl_excel_column,
-      lo_row                  TYPE REF TO zcl_excel_row,
-      lo_hyperlink            TYPE REF TO zcl_excel_hyperlink.
+data: lo_excel        type ref to zcl_excel,
+      lo_excel_writer type ref to zif_excel_writer,
+      lo_worksheet    type ref to zcl_excel_worksheet,
+      lo_border_light type ref to zcl_excel_style_border,
+      lo_style_color0 type ref to zcl_excel_style,
+      lo_style_color1 type ref to zcl_excel_style,
+      lo_style_color2 type ref to zcl_excel_style,
+      lo_style_color3 type ref to zcl_excel_style,
+      lo_style_color4 type ref to zcl_excel_style,
+      lo_style_color5 type ref to zcl_excel_style,
+      lo_style_color6 type ref to zcl_excel_style,
+      lo_style_color7 type ref to zcl_excel_style,
+      lo_style_credit type ref to zcl_excel_style,
+      lo_style_link   type ref to zcl_excel_style,
+      lo_column       type ref to zcl_excel_column,
+      lo_row          type ref to zcl_excel_row,
+      lo_hyperlink    type ref to zcl_excel_hyperlink.
 
-DATA: lv_style_color0_guid    TYPE zexcel_cell_style,
-      lv_style_color1_guid    TYPE zexcel_cell_style,
-      lv_style_color2_guid    TYPE zexcel_cell_style,
-      lv_style_color3_guid    TYPE zexcel_cell_style,
-      lv_style_color4_guid    TYPE zexcel_cell_style,
-      lv_style_color5_guid    TYPE zexcel_cell_style,
-      lv_style_color6_guid    TYPE zexcel_cell_style,
-      lv_style_color7_guid    TYPE zexcel_cell_style,
-      lv_style_credit_guid    TYPE zexcel_cell_style,
-      lv_style_link_guid      TYPE zexcel_cell_style.
+data: lv_style_color0_guid type zexcel_cell_style,
+      lv_style_color1_guid type zexcel_cell_style,
+      lv_style_color2_guid type zexcel_cell_style,
+      lv_style_color3_guid type zexcel_cell_style,
+      lv_style_color4_guid type zexcel_cell_style,
+      lv_style_color5_guid type zexcel_cell_style,
+      lv_style_color6_guid type zexcel_cell_style,
+      lv_style_color7_guid type zexcel_cell_style,
+      lv_style_credit_guid type zexcel_cell_style,
+      lv_style_link_guid   type zexcel_cell_style.
 
-DATA: lv_col_str        TYPE zexcel_cell_column_alpha,
-      lv_row            TYPE i,
-      lv_col            TYPE i,
-      lt_mapper         TYPE TABLE OF zexcel_cell_style,
-      ls_mapper         TYPE zexcel_cell_style.
+data: lv_col_str type zexcel_cell_column_alpha,
+      lv_row     type i,
+      lv_col     type i,
+      lt_mapper  type table of zexcel_cell_style,
+      ls_mapper  type zexcel_cell_style.
 
-DATA: lv_file           TYPE xstring,
-      lv_bytecount      TYPE i,
-      lt_file_tab       TYPE solix_tab.
+data: lv_file      type xstring,
+      lv_bytecount type i,
+      lt_file_tab  type solix_tab.
 
-DATA: lv_full_path      TYPE string,
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
+data: lv_full_path      type string,
+      lv_workdir        type string,
+      lv_file_separator type c.
 
-CONSTANTS: lv_default_file_name TYPE string VALUE 'angry_birds.xlsx'.
+constants: lv_default_file_name type string value 'angry_birds.xlsx'.
 
-PARAMETERS: p_path TYPE zexcel_export_dir.
+parameters: p_path type zexcel_export_dir.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_path.
+at selection-screen on value-request for p_path.
   lv_workdir = p_path.
-  cl_gui_frontend_services=>directory_browse( EXPORTING initial_folder  = lv_workdir
-                                              CHANGING  selected_folder = lv_workdir ).
+  cl_gui_frontend_services=>directory_browse( exporting initial_folder  = lv_workdir
+                                              changing  selected_folder = lv_workdir ).
   p_path = lv_workdir.
 
-INITIALIZATION.
-  cl_gui_frontend_services=>get_sapgui_workdir( CHANGING sapworkdir = lv_workdir ).
+initialization.
+  cl_gui_frontend_services=>get_sapgui_workdir( changing sapworkdir = lv_workdir ).
   cl_gui_cfw=>flush( ).
   p_path = lv_workdir.
 
-START-OF-SELECTION.
+start-of-selection.
 
-  IF p_path IS INITIAL.
+  if p_path is initial.
     p_path = lv_workdir.
-  ENDIF.
-  cl_gui_frontend_services=>get_file_separator( CHANGING file_separator = lv_file_separator ).
-  CONCATENATE p_path lv_file_separator lv_default_file_name INTO lv_full_path.
+  endif.
+  cl_gui_frontend_services=>get_file_separator( changing file_separator = lv_file_separator ).
+  concatenate p_path lv_file_separator lv_default_file_name into lv_full_path.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
-  CREATE OBJECT lo_border_light.
+  create object lo_border_light.
   lo_border_light->border_color-rgb = zcl_excel_style_color=>c_white.
   lo_border_light->border_style = zcl_excel_style_border=>c_border_thin.
 
@@ -152,542 +152,542 @@ START-OF-SELECTION.
   lv_style_link_guid = lo_style_link->get_guid( ).
 
   " Create image map                                                          " line 2
-  DO 30 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 3
-  DO 28 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 5 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 4
-  DO 27 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 5
-  DO 9 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 15 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 6
-  DO 7 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 13 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 7
-  DO 6 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 5 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 11 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 5 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 8
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 9
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 10
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 11
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 7 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 12
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 13
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 8 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 14
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 12 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 15
-  DO 6 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 8 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 16
-  DO 7 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 7 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 5 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 17
-  DO 8 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 13 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 18
-  DO 6 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 23 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 19
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 27 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 20
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 23 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 21
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 19 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 22
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 17 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 23
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 17 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 8 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 24
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 10 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 25
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 8 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 26
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color6_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 27
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color6_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 28
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color6_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 29
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 30
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 31
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color4_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 32
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 8 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color5_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 33
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 34
-  DO 3 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 10 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 35
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 11 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 36
-  DO 4 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 10 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 11 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 37
-  DO 5 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 10 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color7_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 11 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 38
-  DO 6 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 10 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 11 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 39
-  DO 7 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 22 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 1 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 40
-  DO 7 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 17 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 41
-  DO 8 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 3 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 15 TIMES. APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 42
-  DO 9 TIMES.  APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 5 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 9 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 2 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 43
-  DO 11 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 5 TIMES.  APPEND lv_style_color3_guid TO lt_mapper. ENDDO.
-  DO 7 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 44
-  DO 13 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 6 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  DO 4 TIMES.  APPEND lv_style_color2_guid TO lt_mapper. ENDDO.
-  DO 8 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 45
-  DO 16 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 13 TIMES. APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
-                                                            " line 46
-  DO 18 TIMES. APPEND lv_style_color0_guid TO lt_mapper. ENDDO.
-  DO 8 TIMES.  APPEND lv_style_color1_guid TO lt_mapper. ENDDO.
-  APPEND INITIAL LINE TO lt_mapper. " escape
+  do 30 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 3
+  do 28 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 5 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 4
+  do 27 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 5
+  do 9 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 15 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 6
+  do 7 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 13 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 7
+  do 6 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 5 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 11 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 5 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 8
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 9
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 10
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 11
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 7 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 12
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 13
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 8 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 14
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 12 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 15
+  do 6 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 8 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 16
+  do 7 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 7 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 5 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 17
+  do 8 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 13 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 18
+  do 6 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 23 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 19
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 27 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 20
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 23 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 21
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 19 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 22
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 17 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 23
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 17 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 8 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 24
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 10 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 25
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 8 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 26
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color6_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 27
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color6_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 28
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color6_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 29
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 30
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 31
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color4_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 32
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 8 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color5_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 33
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 34
+  do 3 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 10 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 35
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 11 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 36
+  do 4 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 10 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 11 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 37
+  do 5 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 10 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color7_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 11 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 38
+  do 6 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 10 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 11 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 39
+  do 7 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 22 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 1 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 40
+  do 7 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 17 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 41
+  do 8 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 3 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 15 times. append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 42
+  do 9 times.  append lv_style_color0_guid to lt_mapper. enddo.
+  do 5 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 9 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 2 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 43
+  do 11 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 5 times.  append lv_style_color3_guid to lt_mapper. enddo.
+  do 7 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 44
+  do 13 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 6 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  do 4 times.  append lv_style_color2_guid to lt_mapper. enddo.
+  do 8 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 45
+  do 16 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 13 times. append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
+  " line 46
+  do 18 times. append lv_style_color0_guid to lt_mapper. enddo.
+  do 8 times.  append lv_style_color1_guid to lt_mapper. enddo.
+  append initial line to lt_mapper. " escape
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -696,15 +696,15 @@ START-OF-SELECTION.
   lv_row = 1.
   lv_col = 1.
 
-  LOOP AT lt_mapper INTO ls_mapper.
+  loop at lt_mapper into ls_mapper.
     lv_col_str = zcl_excel_common=>convert_column2alpha( lv_col ).
-    IF ls_mapper IS INITIAL.
+    if ls_mapper is initial.
       lo_row = lo_worksheet->get_row( ip_row = lv_row ).
       lo_row->set_row_height( ip_row_height = 8 ).
       lv_col = 1.
       lv_row = lv_row + 1.
-      CONTINUE.
-    ENDIF.
+      continue.
+    endif.
     lo_worksheet->set_cell( ip_column = lv_col_str
                             ip_row    = lv_row
                             ip_value  = space
@@ -713,7 +713,7 @@ START-OF-SELECTION.
 
     lo_column = lo_worksheet->get_column( ip_column = lv_col_str ).
     lo_column->set_width( ip_width = 2 ).
-  ENDLOOP.
+  endloop.
 
   lo_worksheet->set_show_gridlines( i_show_gridlines = abap_false ).
 
@@ -734,23 +734,23 @@ START-OF-SELECTION.
   lo_worksheet->set_merge( ip_row = 15 ip_column_start = 'AP' ip_row_to = 22 ip_column_end = 'AR' ).
   lo_worksheet->set_merge( ip_row = 24 ip_column_start = 'AP' ip_row_to = 26 ip_column_end = 'AR' ).
 
-  CREATE OBJECT lo_excel_writer TYPE zcl_excel_writer_2007.
+  create object lo_excel_writer type zcl_excel_writer_2007.
   lv_file = lo_excel_writer->write_file( lo_excel ).
 
   " Convert to binary
-  CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
-    EXPORTING
+  call function 'SCMS_XSTRING_TO_BINARY'
+    exporting
       buffer        = lv_file
-    IMPORTING
+    importing
       output_length = lv_bytecount
-    TABLES
+    tables
       binary_tab    = lt_file_tab.
 *  " This method is only available on AS ABAP > 6.40
 *  lt_file_tab = cl_bcs_convert=>xstring_to_solix( iv_xstring  = lv_file ).
 *  lv_bytecount = xstrlen( lv_file ).
 
   " Save the file
-  cl_gui_frontend_services=>gui_download( EXPORTING bin_filesize = lv_bytecount
+  cl_gui_frontend_services=>gui_download( exporting bin_filesize = lv_bytecount
                                                     filename     = lv_full_path
                                                     filetype     = 'BIN'
-                                           CHANGING data_tab     = lt_file_tab ).
+                                           changing data_tab     = lt_file_tab ).

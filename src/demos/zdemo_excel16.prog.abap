@@ -6,43 +6,43 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel16.
+report zdemo_excel16.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_drawing              TYPE REF TO zcl_excel_drawing.
-
-
-DATA: ls_io TYPE skwf_io.
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '16_Drawings.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
-
-PARAMETERS: p_objid   TYPE sdok_docid DEFAULT '456694429165174BE10000000A1550C0', " Question mark in standard Web Dynpro WDT_QUIZ
-            p_class   TYPE sdok_class DEFAULT 'M_IMAGE_P',
-            pobjtype  TYPE skwf_ioty  DEFAULT 'P'.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_drawing   type ref to zcl_excel_drawing.
 
 
-START-OF-SELECTION.
+data: ls_io type skwf_io.
+
+constants: gc_save_file_name type string value '16_Drawings.xlsx'.
+include zdemo_excel_outputopt_incl.
+
+parameters: p_objid  type sdok_docid default '456694429165174BE10000000A1550C0', " Question mark in standard Web Dynpro WDT_QUIZ
+            p_class  type sdok_class default 'M_IMAGE_P',
+            pobjtype type skwf_ioty  default 'P'.
+
+
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   "Load samle image
-  DATA: lt_bin TYPE solix_tab,
-        lv_len TYPE i,
-        lv_content TYPE xstring,
-        ls_key TYPE wwwdatatab.
+  data: lt_bin     type solix_tab,
+        lv_len     type i,
+        lv_content type xstring,
+        ls_key     type wwwdatatab.
 
-  CALL METHOD cl_gui_frontend_services=>gui_upload
-    EXPORTING
+  call method cl_gui_frontend_services=>gui_upload
+    exporting
       filename                = 'c:\Program Files\SAP\FrontEnd\SAPgui\wwi\graphics\W_bio.bmp'
       filetype                = 'BIN'
-    IMPORTING
+    importing
       filelength              = lv_len
-    CHANGING
+    changing
       data_tab                = lt_bin
-    EXCEPTIONS
+    exceptions
       file_open_error         = 1
       file_read_error         = 2
       no_batch                = 3
@@ -61,26 +61,26 @@ START-OF-SELECTION.
       dp_timeout              = 16
       not_supported_by_gui    = 17
       error_no_gui            = 18
-      OTHERS                  = 19.
-  IF sy-subrc <> 0.
+      others                  = 19.
+  if sy-subrc <> 0.
 *    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
 *               WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
-  ENDIF.
+  endif.
 
-  CALL FUNCTION 'SCMS_BINARY_TO_XSTRING'
-    EXPORTING
+  call function 'SCMS_BINARY_TO_XSTRING'
+    exporting
       input_length = lv_len
-    IMPORTING
+    importing
       buffer       = lv_content
-    TABLES
+    tables
       binary_tab   = lt_bin
-    EXCEPTIONS
+    exceptions
       failed       = 1
-      OTHERS       = 2.
-  IF sy-subrc <> 0.
-    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
-               WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
-  ENDIF.
+      others       = 2.
+  if sy-subrc <> 0.
+    message id sy-msgid type sy-msgty number sy-msgno
+               with sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+  endif.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -116,7 +116,7 @@ START-OF-SELECTION.
   ls_io-objid   = p_objid.
   ls_io-class   = p_class.
   ls_io-objtype = pobjtype.
-  IF ls_io IS NOT INITIAL.
+  if ls_io is not initial.
     " another drawing from a XSTRING read from a file
     lo_worksheet->set_cell( ip_column = 'B' ip_row = 18 ip_value = 'Mime repository (by default Question mark in standard Web Dynpro WDT_QUIZ)' ).
     lo_drawing = lo_excel->add_new_drawing( ).
@@ -127,7 +127,7 @@ START-OF-SELECTION.
                                 ip_height = 145 ).
 
     lo_worksheet->add_drawing( lo_drawing ).
-  ENDIF.
+  endif.
 
 *** Create output
   lcl_output=>output( lo_excel ).

@@ -6,31 +6,31 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel31.
+report zdemo_excel31.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_hyperlink            TYPE REF TO zcl_excel_hyperlink,
-      lo_column               TYPE REF TO zcl_excel_column.
-
-
-DATA: fieldval            TYPE text80,
-      row                 TYPE i,
-      style_column_a      TYPE REF TO zcl_excel_style,
-      style_column_a_guid TYPE zexcel_cell_style,
-      style_column_b      TYPE REF TO zcl_excel_style,
-      style_column_b_guid TYPE zexcel_cell_style,
-      style_column_c      TYPE REF TO zcl_excel_style,
-      style_column_c_guid TYPE zexcel_cell_style,
-      style_font          TYPE REF TO zcl_excel_style_font.
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '31_AutosizeWithDifferentFontSizes.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_hyperlink type ref to zcl_excel_hyperlink,
+      lo_column    type ref to zcl_excel_column.
 
 
-START-OF-SELECTION.
+data: fieldval            type text80,
+      row                 type i,
+      style_column_a      type ref to zcl_excel_style,
+      style_column_a_guid type zexcel_cell_style,
+      style_column_b      type ref to zcl_excel_style,
+      style_column_b_guid type zexcel_cell_style,
+      style_column_c      type ref to zcl_excel_style,
+      style_column_c_guid type zexcel_cell_style,
+      style_font          type ref to zcl_excel_style_font.
 
-  CREATE OBJECT lo_excel.
+constants: gc_save_file_name type string value '31_AutosizeWithDifferentFontSizes.xlsx'.
+include zdemo_excel_outputopt_incl.
+
+
+start-of-selection.
+
+  create object lo_excel.
   " Use active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
   lo_worksheet->set_title( ip_title = 'Regular Font' ).
@@ -44,16 +44,16 @@ START-OF-SELECTION.
   style_column_c_guid         = style_column_c->get_guid( ).
 
 
-  DO 20 TIMES.
+  do 20 times.
     row = sy-index.
-    CLEAR fieldval.
-    DO sy-index TIMES.
-      CONCATENATE fieldval 'X' INTO fieldval.
-    ENDDO.
+    clear fieldval.
+    do sy-index times.
+      concatenate fieldval 'X' into fieldval.
+    enddo.
     lo_worksheet->set_cell( ip_column = 'A' ip_row = row ip_value = fieldval ip_style = style_column_a_guid ).
     lo_worksheet->set_cell( ip_column = 'B' ip_row = row ip_value = fieldval ).
     lo_worksheet->set_cell( ip_column = 'C' ip_row = row ip_value = fieldval ip_style = style_column_c_guid ).
-  ENDDO.
+  enddo.
 
   lo_column = lo_worksheet->get_column( 'A' ).
   lo_column->set_auto_size( ip_auto_size = abap_true ).
@@ -80,16 +80,16 @@ START-OF-SELECTION.
   style_column_c->font->bold  = abap_true.
   style_column_c_guid         = style_column_c->get_guid( ).
 
-  DO 20 TIMES.
+  do 20 times.
     row = sy-index.
-    CLEAR fieldval.
-    DO sy-index TIMES.
-      CONCATENATE fieldval 'X' INTO fieldval.
-    ENDDO.
+    clear fieldval.
+    do sy-index times.
+      concatenate fieldval 'X' into fieldval.
+    enddo.
     lo_worksheet->set_cell( ip_column = 'A' ip_row = row ip_value = fieldval ip_style = style_column_a_guid ).
     lo_worksheet->set_cell( ip_column = 'B' ip_row = row ip_value = fieldval ip_style = style_column_b_guid ).
     lo_worksheet->set_cell( ip_column = 'C' ip_row = row ip_value = fieldval ip_style = style_column_c_guid ).
-  ENDDO.
+  enddo.
 
   lo_column = lo_worksheet->get_column( 'A' ).
   lo_column->set_auto_size( ip_auto_size = abap_true ).
@@ -116,16 +116,16 @@ START-OF-SELECTION.
   style_column_c->font->italic = abap_true.
   style_column_c_guid          = style_column_c->get_guid( ).
 
-  DO 20 TIMES.
+  do 20 times.
     row = sy-index.
-    CLEAR fieldval.
-    DO sy-index TIMES.
-      CONCATENATE fieldval 'X' INTO fieldval.
-    ENDDO.
+    clear fieldval.
+    do sy-index times.
+      concatenate fieldval 'X' into fieldval.
+    enddo.
     lo_worksheet->set_cell( ip_column = 'A' ip_row = row ip_value = fieldval ip_style = style_column_a_guid ).
     lo_worksheet->set_cell( ip_column = 'B' ip_row = row ip_value = fieldval ip_style = style_column_b_guid ).
     lo_worksheet->set_cell( ip_column = 'C' ip_row = row ip_value = fieldval ip_style = style_column_c_guid ).
-  ENDDO.
+  enddo.
 
   lo_column = lo_worksheet->get_column( 'A' ).
   lo_column->set_auto_size( ip_auto_size = abap_true ).
@@ -143,7 +143,7 @@ START-OF-SELECTION.
   lo_worksheet->set_cell( ip_column = 'A' ip_row = 3 ip_value = 'Some more data' ).
 
   lo_worksheet->set_merge(
-    EXPORTING
+    exporting
       ip_column_start = 'A'
       ip_column_end   = 'C'
       ip_row          = 1 ).

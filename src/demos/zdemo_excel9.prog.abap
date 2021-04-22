@@ -6,34 +6,34 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel9.
+report zdemo_excel9.
 
-CONSTANTS: c_fruits     TYPE string VALUE 'Fruits',
-           c_vegetables TYPE string VALUE 'Vegetables',
-           c_meat       TYPE string VALUE 'Meat',
-           c_fish       TYPE string VALUE 'Fish'.
+constants: c_fruits     type string value 'Fruits',
+           c_vegetables type string value 'Vegetables',
+           c_meat       type string value 'Meat',
+           c_fish       type string value 'Fish'.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_range                TYPE REF TO zcl_excel_range,
-      lo_data_validation      TYPE REF TO zcl_excel_data_validation.
+data: lo_excel           type ref to zcl_excel,
+      lo_worksheet       type ref to zcl_excel_worksheet,
+      lo_range           type ref to zcl_excel_range,
+      lo_data_validation type ref to zcl_excel_data_validation.
 
-DATA: row TYPE zexcel_cell_row.
-
-
-DATA: lv_title          TYPE zexcel_sheet_title.
+data: row type zexcel_cell_row.
 
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '09_DataValidation.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
-
-PARAMETERS: p_sbook TYPE flag.
+data: lv_title          type zexcel_sheet_title.
 
 
-START-OF-SELECTION.
+constants: gc_save_file_name type string value '09_DataValidation.xlsx'.
+include zdemo_excel_outputopt_incl.
+
+parameters: p_sbook type flag.
+
+
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet        = lo_excel->get_active_worksheet( ).
@@ -146,7 +146,7 @@ START-OF-SELECTION.
   lo_worksheet->set_cell( ip_row = 11 ip_column = 'B' ip_value = c_vegetables ).
 
   row = 12.
-  WHILE row < 20. " Starting with 14500 the data validation is dropped 14000 are still ok
+  while row < 20. " Starting with 14500 the data validation is dropped 14000 are still ok
     " 1st validation
     lo_data_validation              = lo_worksheet->add_new_data_validation( ).
     lo_data_validation->type        = zcl_excel_data_validation=>c_type_list.
@@ -154,21 +154,21 @@ START-OF-SELECTION.
     lo_data_validation->cell_row    = row.
     lo_data_validation->cell_column = 'A'.
     lo_worksheet->set_cell( ip_row = row ip_column = 'A' ip_value = 'Select a value' ).
-                                                            " 2nd
+    " 2nd
     lo_data_validation              = lo_worksheet->add_new_data_validation( ).
     lo_data_validation->type        = zcl_excel_data_validation=>c_type_list.
     lo_data_validation->formula1    = c_vegetables.
     lo_data_validation->cell_row    = row.
     lo_data_validation->cell_column = 'B'.
     lo_worksheet->set_cell( ip_row = row ip_column = 'B' ip_value = 'Select a value' ).
-                                                            " 3rd
+    " 3rd
     lo_data_validation              = lo_worksheet->add_new_data_validation( ).
     lo_data_validation->type        = zcl_excel_data_validation=>c_type_list.
     lo_data_validation->formula1    = c_meat.
     lo_data_validation->cell_row    = row.
     lo_data_validation->cell_column = 'C'.
     lo_worksheet->set_cell( ip_row = row ip_column = 'C' ip_value = 'Select a value' ).
-                                                            " 4th
+    " 4th
     lo_data_validation              = lo_worksheet->add_new_data_validation( ).
     lo_data_validation->type        = zcl_excel_data_validation=>c_type_list.
     lo_data_validation->formula1    = c_fish.
@@ -177,26 +177,26 @@ START-OF-SELECTION.
     lo_worksheet->set_cell( ip_row = row ip_column = 'D' ip_value = 'Select a value' ).
     " Increment row
     row = row + 1.
-  ENDWHILE.
+  endwhile.
 
-  IF p_sbook = abap_true.
-    DATA: bookings type TABLE OF sbook.
+  if p_sbook = abap_true.
+    data: bookings type table of sbook.
 
     lo_worksheet        = lo_excel->add_new_worksheet( ).
     lv_title = 'SBOOK'.
     lo_worksheet->set_title( lv_title ).
 
-    SELECT * from sbook INTO TABLE bookings UP TO 4000 ROWS.
+    select * from sbook into table bookings up to 4000 rows.
 
     lo_worksheet->bind_table(
-      EXPORTING
+      exporting
         ip_table          = bookings
 *        it_field_catalog  =     " Table binding field catalog
 *        is_table_settings =     " Excel table binding settings
 *      IMPORTING
 *        es_table_settings =     " Excel table binding settings
     ).
-  ENDIF.
+  endif.
 
 
 *** Create output

@@ -6,33 +6,33 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel24.
+report zdemo_excel24.
 
-TYPE-POOLS: abap.
+type-pools: abap.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_column               TYPE REF TO zcl_excel_column,
-      lo_hyperlink            TYPE REF TO zcl_excel_hyperlink.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_column    type ref to zcl_excel_column,
+      lo_hyperlink type ref to zcl_excel_hyperlink.
 
-DATA: lv_file                 TYPE xstring,
-      lv_bytecount            TYPE i,
-      lt_file_tab             TYPE solix_tab.
+data: lv_file      type xstring,
+      lv_bytecount type i,
+      lt_file_tab  type solix_tab.
 
-DATA: lv_full_path      TYPE string,
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
+data: lv_full_path      type string,
+      lv_workdir        type string,
+      lv_file_separator type c.
 
-DATA: lv_value TYPE string.
+data: lv_value type string.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '24_Sheets_with_different_default_date_formats.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '24_Sheets_with_different_default_date_formats.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -64,7 +64,7 @@ START-OF-SELECTION.
   lo_worksheet = lo_excel->add_new_worksheet( ).
   " TODO: It seems that the zcl_excel_style_number_format=>c_format_date_yyyymmddslash
   " does not produce a valid output
-   lo_worksheet->set_default_excel_date_format( zcl_excel_style_number_format=>c_format_date_yyyymmddslash ).
+  lo_worksheet->set_default_excel_date_format( zcl_excel_style_number_format=>c_format_date_yyyymmddslash ).
   lo_worksheet->set_title( ip_title = 'Sheet3' ).
   lo_worksheet->set_cell( ip_column = 'A' ip_row = 1 ip_value = 'Date Format set to YYYY/MM/DD' ).
   " Insert current date
@@ -81,16 +81,16 @@ START-OF-SELECTION.
   " http://support.microsoft.com/kb/214326/en-us
   lo_worksheet->set_title( ip_title = 'Sheet4' ).
   " Loop from Start Date to the Max Date current data in daily steps
-  CONSTANTS: lv_max type d VALUE '19000302'.
+  constants: lv_max type d value '19000302'.
 
-  DATA: lv_date TYPE d VALUE '19000226',
-        lv_row  TYPE i.
+  data: lv_date type d value '19000226',
+        lv_row  type i.
   lo_worksheet->set_cell( ip_column = 'B' ip_row = 3 ip_value = 'Formated date' ).
   lo_worksheet->set_cell( ip_column = 'C' ip_row = 3 ip_value = 'Integer value for this date' ).
   lo_worksheet->set_cell( ip_column = 'D' ip_row = 3 ip_value = 'Date as string' ).
 
   lv_row = 4.
-  WHILE lv_date < lv_max.
+  while lv_date < lv_max.
     lo_worksheet->set_cell( ip_column = 'B' ip_row = lv_row ip_value = lv_date ).
     lv_value = zcl_excel_common=>date_to_excel_string( lv_date ).
     lo_worksheet->set_cell( ip_column = 'C' ip_row = lv_row ip_value = lv_value ).
@@ -98,7 +98,7 @@ START-OF-SELECTION.
     lo_worksheet->set_cell( ip_column = 'D' ip_row = lv_row ip_value = lv_value ).
     lv_date = lv_date + 1.
     lv_row = lv_row + 1.
-  ENDWHILE.
+  endwhile.
 
   lv_row = lv_row + 1.
 

@@ -6,65 +6,65 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel2.
+report zdemo_excel2.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_style_bold           TYPE REF TO zcl_excel_style,
-      lo_style_underline      TYPE REF TO zcl_excel_style,
-      lo_style_filled         TYPE REF TO zcl_excel_style,
-      lo_style_border         TYPE REF TO zcl_excel_style,
-      lo_style_button         TYPE REF TO zcl_excel_style,
-      lo_border_dark          TYPE REF TO zcl_excel_style_border,
-      lo_border_light         TYPE REF TO zcl_excel_style_border.
+data: lo_excel           type ref to zcl_excel,
+      lo_worksheet       type ref to zcl_excel_worksheet,
+      lo_style_bold      type ref to zcl_excel_style,
+      lo_style_underline type ref to zcl_excel_style,
+      lo_style_filled    type ref to zcl_excel_style,
+      lo_style_border    type ref to zcl_excel_style,
+      lo_style_button    type ref to zcl_excel_style,
+      lo_border_dark     type ref to zcl_excel_style_border,
+      lo_border_light    type ref to zcl_excel_style_border.
 
-DATA: lv_style_bold_guid         TYPE zexcel_cell_style,
-      lv_style_underline_guid    TYPE zexcel_cell_style,
-      lv_style_filled_guid       TYPE zexcel_cell_style,
-      lv_style_filled_green_guid TYPE zexcel_cell_style,
-      lv_style_border_guid       TYPE zexcel_cell_style,
-      lv_style_button_guid       TYPE zexcel_cell_style,
-      lv_style_filled_turquoise_guid TYPE zexcel_cell_style,
-      lv_style_gr_cornerlb_guid TYPE zexcel_cell_style,
-      lv_style_gr_cornerlt_guid TYPE zexcel_cell_style,
-      lv_style_gr_cornerrb_guid TYPE zexcel_cell_style,
-      lv_style_gr_cornerrt_guid TYPE zexcel_cell_style,
-      lv_style_gr_horizontal90_guid TYPE zexcel_cell_style,
-      lv_style_gr_horizontal270_guid TYPE zexcel_cell_style,
-      lv_style_gr_horizontalb_guid TYPE zexcel_cell_style,
-      lv_style_gr_vertical_guid TYPE zexcel_cell_style,
-      lv_style_gr_vertical2_guid TYPE zexcel_cell_style,
-      lv_style_gr_fromcenter_guid TYPE zexcel_cell_style,
-      lv_style_gr_diagonal45_guid TYPE zexcel_cell_style,
-      lv_style_gr_diagonal45b_guid TYPE zexcel_cell_style,
-      lv_style_gr_diagonal135_guid TYPE zexcel_cell_style,
-      lv_style_gr_diagonal135b_guid TYPE zexcel_cell_style     .
+data: lv_style_bold_guid             type zexcel_cell_style,
+      lv_style_underline_guid        type zexcel_cell_style,
+      lv_style_filled_guid           type zexcel_cell_style,
+      lv_style_filled_green_guid     type zexcel_cell_style,
+      lv_style_border_guid           type zexcel_cell_style,
+      lv_style_button_guid           type zexcel_cell_style,
+      lv_style_filled_turquoise_guid type zexcel_cell_style,
+      lv_style_gr_cornerlb_guid      type zexcel_cell_style,
+      lv_style_gr_cornerlt_guid      type zexcel_cell_style,
+      lv_style_gr_cornerrb_guid      type zexcel_cell_style,
+      lv_style_gr_cornerrt_guid      type zexcel_cell_style,
+      lv_style_gr_horizontal90_guid  type zexcel_cell_style,
+      lv_style_gr_horizontal270_guid type zexcel_cell_style,
+      lv_style_gr_horizontalb_guid   type zexcel_cell_style,
+      lv_style_gr_vertical_guid      type zexcel_cell_style,
+      lv_style_gr_vertical2_guid     type zexcel_cell_style,
+      lv_style_gr_fromcenter_guid    type zexcel_cell_style,
+      lv_style_gr_diagonal45_guid    type zexcel_cell_style,
+      lv_style_gr_diagonal45b_guid   type zexcel_cell_style,
+      lv_style_gr_diagonal135_guid   type zexcel_cell_style,
+      lv_style_gr_diagonal135b_guid  type zexcel_cell_style.
 
-DATA: lv_file                 TYPE xstring,
-      lv_bytecount            TYPE i,
-      lt_file_tab             TYPE solix_tab.
+data: lv_file      type xstring,
+      lv_bytecount type i,
+      lt_file_tab  type solix_tab.
 
-DATA: lv_full_path      TYPE string,
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
-DATA: lo_row TYPE REF TO zcl_excel_row.
+data: lv_full_path      type string,
+      lv_workdir        type string,
+      lv_file_separator type c.
+data: lo_row type ref to zcl_excel_row.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '02_Styles.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '02_Styles.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
 
-START-OF-SELECTION.
+start-of-selection.
 
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Create border object
-  CREATE OBJECT lo_border_dark.
+  create object lo_border_dark.
   lo_border_dark->border_color-rgb = zcl_excel_style_color=>c_black.
   lo_border_dark->border_style = zcl_excel_style_border=>c_border_thin.
-  CREATE OBJECT lo_border_light.
+  create object lo_border_light.
   lo_border_light->border_color-rgb = zcl_excel_style_color=>c_gray.
   lo_border_light->border_style = zcl_excel_style_border=>c_border_thin.
   " Create a bold / italic style

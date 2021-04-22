@@ -6,32 +6,32 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel30.
+report zdemo_excel30.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_hyperlink            TYPE REF TO zcl_excel_hyperlink,
-      lo_column               TYPE REF TO zcl_excel_column.
-
-
-DATA: lv_value  TYPE string,
-      lv_count  TYPE i VALUE 10,
-      lv_packed TYPE p LENGTH 16 DECIMALS 1 VALUE '1234567890.5'.
-
-CONSTANTS: lc_typekind_string TYPE abap_typekind VALUE cl_abap_typedescr=>typekind_string,
-           lc_typekind_packed TYPE abap_typekind VALUE cl_abap_typedescr=>typekind_packed,
-           lc_typekind_num    TYPE abap_typekind VALUE cl_abap_typedescr=>typekind_num,
-           lc_typekind_date   TYPE abap_typekind VALUE cl_abap_typedescr=>typekind_date,
-           lc_typekind_s_ls   TYPE string VALUE 's_leading_blanks'.
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '30_CellDataTypes.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_hyperlink type ref to zcl_excel_hyperlink,
+      lo_column    type ref to zcl_excel_column.
 
 
-START-OF-SELECTION.
+data: lv_value  type string,
+      lv_count  type i value 10,
+      lv_packed type p length 16 decimals 1 value '1234567890.5'.
+
+constants: lc_typekind_string type abap_typekind value cl_abap_typedescr=>typekind_string,
+           lc_typekind_packed type abap_typekind value cl_abap_typedescr=>typekind_packed,
+           lc_typekind_num    type abap_typekind value cl_abap_typedescr=>typekind_num,
+           lc_typekind_date   type abap_typekind value cl_abap_typedescr=>typekind_date,
+           lc_typekind_s_ls   type string value 's_leading_blanks'.
+
+constants: gc_save_file_name type string value '30_CellDataTypes.xlsx'.
+include zdemo_excel_outputopt_incl.
+
+
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -65,21 +65,21 @@ START-OF-SELECTION.
   lo_worksheet->set_cell( ip_column = 'D' ip_row = 3 ip_value = '50 %'
                           ip_abap_type = lc_typekind_num ).
 
-  WHILE lv_count <= 15.
+  while lv_count <= 15.
     lv_value = lv_count.
-    CONCATENATE 'Positive Value with' lv_value 'Digits' INTO lv_value SEPARATED BY space.
+    concatenate 'Positive Value with' lv_value 'Digits' into lv_value separated by space.
     lo_worksheet->set_cell( ip_column = 'B' ip_row = lv_count ip_value = lv_value
                             ip_abap_type = lc_typekind_string ).
     lo_worksheet->set_cell( ip_column = 'C' ip_row = lv_count ip_value = lv_packed
                             ip_abap_type = lc_typekind_packed ).
-    CONCATENATE 'Positive Value with' lv_value 'Digits formated as string' INTO lv_value SEPARATED BY space.
+    concatenate 'Positive Value with' lv_value 'Digits formated as string' into lv_value separated by space.
     lo_worksheet->set_cell( ip_column = 'D' ip_row = lv_count ip_value = lv_value
                             ip_abap_type = lc_typekind_string ).
     lo_worksheet->set_cell( ip_column = 'E' ip_row = lv_count ip_value = lv_packed
                             ip_abap_type = lc_typekind_string ).
     lv_packed = lv_packed * 10.
     lv_count  = lv_count + 1.
-  ENDWHILE.
+  endwhile.
 
   lo_column = lo_worksheet->get_column( ip_column = 'A' ).
   lo_column->set_auto_size( abap_true ).

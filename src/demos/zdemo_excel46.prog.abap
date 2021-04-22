@@ -5,32 +5,32 @@
 *&
 *&
 *&---------------------------------------------------------------------*
-REPORT zdemo_excel46.
+report zdemo_excel46.
 
-CONSTANTS:
-  gc_ws_title_validation TYPE zexcel_sheet_title VALUE 'Validation'.
+constants:
+  gc_ws_title_validation type zexcel_sheet_title value 'Validation'.
 
-DATA:
-  lo_excel             TYPE REF TO zcl_excel,
-  lo_worksheet         TYPE REF TO zcl_excel_worksheet,
-  lo_range             TYPE REF TO zcl_excel_range,
-  lv_validation_string TYPE string,
-  lo_data_validation   TYPE REF TO zcl_excel_data_validation,
-  lv_row               TYPE zexcel_cell_row.
-
-
-CONSTANTS:
-  gc_save_file_name TYPE string VALUE '46_ValidationWarning.xlsx'.
-
-INCLUDE zdemo_excel_outputopt_incl.
+data:
+  lo_excel             type ref to zcl_excel,
+  lo_worksheet         type ref to zcl_excel_worksheet,
+  lo_range             type ref to zcl_excel_range,
+  lv_validation_string type string,
+  lo_data_validation   type ref to zcl_excel_data_validation,
+  lv_row               type zexcel_cell_row.
 
 
-START-OF-SELECTION.
+constants:
+  gc_save_file_name type string value '46_ValidationWarning.xlsx'.
+
+include zdemo_excel_outputopt_incl.
+
+
+start-of-selection.
 
 *** Sheet Validation
 
 * Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
 * Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -62,10 +62,10 @@ START-OF-SELECTION.
 
 * add some fields with validation
   lv_row = 2.
-  WHILE lv_row <= 4.
+  while lv_row <= 4.
     lo_worksheet->set_cell( ip_row = lv_row ip_column = 'A' ip_value = 'Select' ).
     lv_row = lv_row + 1.
-  ENDWHILE.
+  endwhile.
 
 *** Create output
   lcl_output=>output( lo_excel ).

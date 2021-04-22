@@ -6,27 +6,27 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel10.
+report zdemo_excel10.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_style_cond           TYPE REF TO zcl_excel_style_cond,
-      lo_column               TYPE REF TO zcl_excel_column.
+data: lo_excel      type ref to zcl_excel,
+      lo_worksheet  type ref to zcl_excel_worksheet,
+      lo_style_cond type ref to zcl_excel_style_cond,
+      lo_column     type ref to zcl_excel_column.
 
-DATA: lt_field_catalog        TYPE zexcel_t_fieldcatalog,
-      ls_table_settings       TYPE zexcel_s_table_settings,
-      ls_iconset              TYPE zexcel_conditional_iconset.
+data: lt_field_catalog  type zexcel_t_fieldcatalog,
+      ls_table_settings type zexcel_s_table_settings,
+      ls_iconset        type zexcel_conditional_iconset.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '10_iTabFieldCatalog.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '10_iTabFieldCatalog.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
-  FIELD-SYMBOLS: <fs_field_catalog> TYPE zexcel_s_fieldcatalog.
+  field-symbols: <fs_field_catalog> type zexcel_s_fieldcatalog.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -51,35 +51,35 @@ START-OF-SELECTION.
   lo_style_cond->mode_iconset = ls_iconset.
   lo_style_cond->priority     = 1.
 
-  DATA lt_test TYPE TABLE OF sflight.
-  SELECT * FROM sflight INTO TABLE lt_test. "#EC CI_NOWHERE
+  data lt_test type table of sflight.
+  select * from sflight into table lt_test.             "#EC CI_NOWHERE
 
   lt_field_catalog = zcl_excel_common=>get_fieldcatalog( ip_table = lt_test ).
 
-  LOOP AT lt_field_catalog ASSIGNING <fs_field_catalog>.
-    CASE <fs_field_catalog>-fieldname.
-      WHEN 'CARRID'.
+  loop at lt_field_catalog assigning <fs_field_catalog>.
+    case <fs_field_catalog>-fieldname.
+      when 'CARRID'.
         <fs_field_catalog>-position   = 3.
         <fs_field_catalog>-dynpfld    = abap_true.
         <fs_field_catalog>-totals_function = zcl_excel_table=>totals_function_count.
-      WHEN 'CONNID'.
+      when 'CONNID'.
         <fs_field_catalog>-position   = 4.
         <fs_field_catalog>-dynpfld    = abap_true.
         <fs_field_catalog>-abap_type  = cl_abap_typedescr=>typekind_int.
         "This avoid the excel warning that the number is formatted as a text: abap2xlsx is not able to recognize numc as a number so it formats the number as a text with
         "the related warning. You can force the type and the framework will correctly format the number as a number
-      WHEN 'FLDATE'.
+      when 'FLDATE'.
         <fs_field_catalog>-position   = 2.
         <fs_field_catalog>-dynpfld    = abap_true.
-      WHEN 'PRICE'.
+      when 'PRICE'.
         <fs_field_catalog>-position   = 1.
         <fs_field_catalog>-dynpfld    = abap_true.
         <fs_field_catalog>-totals_function = zcl_excel_table=>totals_function_sum.
         <fs_field_catalog>-style_cond = lo_style_cond->get_guid( ).
-      WHEN OTHERS.
+      when others.
         <fs_field_catalog>-dynpfld = abap_false.
-    ENDCASE.
-  ENDLOOP.
+    endcase.
+  endloop.
 
   ls_table_settings-table_style  = zcl_excel_table=>builtinstyle_medium5.
 

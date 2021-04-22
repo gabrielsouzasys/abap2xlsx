@@ -6,28 +6,28 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel12.
+report zdemo_excel12.
 
-DATA: lo_excel         TYPE REF TO zcl_excel,
-      lo_worksheet     TYPE REF TO zcl_excel_worksheet,
-      lo_column        TYPE REF TO zcl_excel_column,
-      lo_row           TYPE REF TO zcl_excel_row.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_column    type ref to zcl_excel_column,
+      lo_row       type ref to zcl_excel_row.
 
-DATA: lv_file      TYPE xstring,
-      lv_bytecount TYPE i,
-      lt_file_tab  TYPE solix_tab.
+data: lv_file      type xstring,
+      lv_bytecount type i,
+      lt_file_tab  type solix_tab.
 
-DATA: lv_full_path      TYPE string,
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
+data: lv_full_path      type string,
+      lv_workdir        type string,
+      lv_file_separator type c.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '12_HideSizeOutlineRowsAndColumns.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '12_HideSizeOutlineRowsAndColumns.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).

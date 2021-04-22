@@ -6,21 +6,21 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel6.
+report zdemo_excel6.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lv_row                  TYPE syindex,
-      lv_formula              TYPE string.
-
-
-CONSTANTS: gc_save_file_name TYPE string VALUE '06_Formulas.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lv_row       type syindex,
+      lv_formula   type string.
 
 
-START-OF-SELECTION.
+constants: gc_save_file_name type string value '06_Formulas.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-  CREATE OBJECT lo_excel.
+
+start-of-selection.
+
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -45,7 +45,7 @@ START-OF-SELECTION.
 * Demonstrate standard EXCEL-behaviour when copying a formula to another cell
 * by calculating the resulting formula to put into another cell
 *--------------------------------------------------------------------*
-  DO 10 TIMES.
+  do 10 times.
 
     lv_formula = zcl_excel_common=>shift_formula( iv_reference_formula = 'SUM(C4:C8)'
                                                   iv_shift_cols        = 0                " Offset in Columns - here we copy in same column --> 0
@@ -53,7 +53,7 @@ START-OF-SELECTION.
     lv_row = 9 + sy-index.                                                                " Absolute row = sy-index rows below reference cell
     lo_worksheet->set_cell( ip_row = lv_row ip_column = 'C' ip_formula = lv_formula ).
 
-  ENDDO.
+  enddo.
 
 *--------------------------------------------------------------------*
 *** Create output

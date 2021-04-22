@@ -1,104 +1,104 @@
-REPORT zdemo_excel37.
+report zdemo_excel37.
 
-TYPE-POOLS: vrm.
+type-pools: vrm.
 
-DATA: excel                 TYPE REF TO zcl_excel,
-      reader                TYPE REF TO zif_excel_reader,
-      go_error              TYPE REF TO cx_root,
-      gv_memid_gr8          TYPE text255,
-      gv_message            TYPE string,
-      lv_extension          TYPE string,
-      gv_error_program_name TYPE syrepid,
-      gv_error_include_name TYPE syrepid,
-      gv_error_line         TYPE i.
+data: excel                 type ref to zcl_excel,
+      reader                type ref to zif_excel_reader,
+      go_error              type ref to cx_root,
+      gv_memid_gr8          type text255,
+      gv_message            type string,
+      lv_extension          type string,
+      gv_error_program_name type syrepid,
+      gv_error_include_name type syrepid,
+      gv_error_line         type i.
 
-DATA: gc_save_file_name TYPE string VALUE '37- Read template and output.&'.
+data: gc_save_file_name type string value '37- Read template and output.&'.
 
-SELECTION-SCREEN BEGIN OF BLOCK blx WITH FRAME.
-PARAMETERS: p_upfile TYPE string LOWER CASE MEMORY ID gr8.
-SELECTION-SCREEN END OF BLOCK blx.
+selection-screen begin of block blx with frame.
+parameters: p_upfile type string lower case memory id gr8.
+selection-screen end of block blx.
 
-INCLUDE zdemo_excel_outputopt_incl.
+include zdemo_excel_outputopt_incl.
 
-SELECTION-SCREEN BEGIN OF BLOCK cls WITH FRAME TITLE text-cls.
-PARAMETERS: lb_read   TYPE seoclsname AS LISTBOX VISIBLE LENGTH 40 LOWER CASE OBLIGATORY DEFAULT 'Autodetect'(001).
-PARAMETERS: lb_write  TYPE seoclsname AS LISTBOX VISIBLE LENGTH 40 LOWER CASE OBLIGATORY DEFAULT 'Autodetect'(001).
-SELECTION-SCREEN END OF BLOCK cls.
+selection-screen begin of block cls with frame title text-cls.
+parameters: lb_read   type seoclsname as listbox visible length 40 lower case obligatory default 'Autodetect'(001).
+parameters: lb_write  type seoclsname as listbox visible length 40 lower case obligatory default 'Autodetect'(001).
+selection-screen end of block cls.
 
-SELECTION-SCREEN BEGIN OF BLOCK bl_err WITH FRAME TITLE text-err.
-PARAMETERS: cb_errl AS CHECKBOX DEFAULT 'X'.
-SELECTION-SCREEN BEGIN OF LINE.
-PARAMETERS: cb_dump AS CHECKBOX DEFAULT space.
-SELECTION-SCREEN COMMENT (60) cmt_dump FOR FIELD cb_dump.
-SELECTION-SCREEN END OF LINE.
-SELECTION-SCREEN END OF BLOCK bl_err.
+selection-screen begin of block bl_err with frame title text-err.
+parameters: cb_errl as checkbox default 'X'.
+selection-screen begin of line.
+parameters: cb_dump as checkbox default space.
+selection-screen comment (60) cmt_dump for field cb_dump.
+selection-screen end of line.
+selection-screen end of block bl_err.
 
-INITIALIZATION.
-  PERFORM setup_listboxes.
+initialization.
+  perform setup_listboxes.
   cmt_dump = text-dum.
-  GET PARAMETER ID 'GR8' FIELD gv_memid_gr8.
+  get parameter id 'GR8' field gv_memid_gr8.
   p_upfile = gv_memid_gr8.
 
-  IF p_upfile IS INITIAL.
+  if p_upfile is initial.
     p_upfile = 'c:\temp\whatever.xlsx'.
-  ENDIF.
+  endif.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_upfile.
-  PERFORM f4_p_upfile CHANGING p_upfile.
+at selection-screen on value-request for p_upfile.
+  perform f4_p_upfile changing p_upfile.
 
 
-START-OF-SELECTION.
-  IF cb_dump IS INITIAL.
-    TRY.
-        PERFORM read_template.
-        PERFORM write_template.
+start-of-selection.
+  if cb_dump is initial.
+    try.
+        perform read_template.
+        perform write_template.
 *** Create output
-      CATCH cx_root INTO go_error.
-        MESSAGE 'Error reading excelfile' TYPE 'I'.
+      catch cx_root into go_error.
+        message 'Error reading excelfile' type 'I'.
         gv_message = go_error->get_text( ).
-        IF cb_errl = ' '.
-          IF gv_message IS NOT INITIAL.
-            MESSAGE gv_message TYPE 'I'.
-          ENDIF.
-        ELSE.
-          go_error->get_source_position( IMPORTING program_name = gv_error_program_name
+        if cb_errl = ' '.
+          if gv_message is not initial.
+            message gv_message type 'I'.
+          endif.
+        else.
+          go_error->get_source_position( importing program_name = gv_error_program_name
                                                    include_name = gv_error_include_name
                                                    source_line  = gv_error_line         ).
-          WRITE:/ 'Errormessage:'       ,gv_message.
-          WRITE:/ 'Errorposition:',
-                AT /10 'Program:'       ,gv_error_program_name,
-                AT /10 'include_name:'  ,gv_error_include_name,
-                AT /10 'source_line:'   ,gv_error_line.
-        ENDIF.
-    ENDTRY.
-  ELSE.  " This will dump if an error occurs.  In some cases the information given in cx_root is not helpful - this will show exactly where the problem is
-    PERFORM read_template.
-    PERFORM write_template.
-  ENDIF.
+          write:/ 'Errormessage:'       ,gv_message.
+          write:/ 'Errorposition:',
+                at /10 'Program:'       ,gv_error_program_name,
+                at /10 'include_name:'  ,gv_error_include_name,
+                at /10 'source_line:'   ,gv_error_line.
+        endif.
+    endtry.
+  else.  " This will dump if an error occurs.  In some cases the information given in cx_root is not helpful - this will show exactly where the problem is
+    perform read_template.
+    perform write_template.
+  endif.
 
 
 
 *&---------------------------------------------------------------------*
 *&      Form  F4_P_UPFILE
 *&---------------------------------------------------------------------*
-FORM f4_p_upfile  CHANGING p_upfile TYPE string.
+form f4_p_upfile  changing p_upfile type string.
 
-  DATA: lv_repid       TYPE syrepid,
-        lt_fields      TYPE dynpread_tabtype,
-        ls_field       LIKE LINE OF lt_fields,
-        lt_files       TYPE filetable,
-        lv_file_filter TYPE string.
+  data: lv_repid       type syrepid,
+        lt_fields      type dynpread_tabtype,
+        ls_field       like line of lt_fields,
+        lt_files       type filetable,
+        lv_file_filter type string.
 
   lv_repid = sy-repid.
 
-  CALL FUNCTION 'DYNP_VALUES_READ'
-    EXPORTING
+  call function 'DYNP_VALUES_READ'
+    exporting
       dyname               = lv_repid
       dynumb               = '1000'
       request              = 'A'
-    TABLES
+    tables
       dynpfields           = lt_fields
-    EXCEPTIONS
+    exceptions
       invalid_abapworkarea = 01
       invalid_dynprofield  = 02
       invalid_dynproname   = 03
@@ -106,196 +106,196 @@ FORM f4_p_upfile  CHANGING p_upfile TYPE string.
       invalid_request      = 05
       no_fielddescription  = 06
       undefind_error       = 07.
-  READ TABLE lt_fields INTO ls_field WITH KEY fieldname = 'P_UPFILE'.
+  read table lt_fields into ls_field with key fieldname = 'P_UPFILE'.
   p_upfile = ls_field-fieldvalue.
 
   lv_file_filter = 'Excel Files (*.XLSX;*.XLSM)|*.XLSX;*.XLSM'.
-  cl_gui_frontend_services=>file_open_dialog( EXPORTING
+  cl_gui_frontend_services=>file_open_dialog( exporting
                                                 default_filename        = p_upfile
                                                 file_filter             = lv_file_filter
-                                              CHANGING
+                                              changing
                                                 file_table              = lt_files
                                                 rc                      = sy-tabix
-                                              EXCEPTIONS
-                                                OTHERS                  = 1 ).
-  READ TABLE lt_files INDEX 1 INTO p_upfile.
+                                              exceptions
+                                                others                  = 1 ).
+  read table lt_files index 1 into p_upfile.
 
-ENDFORM.                    " F4_P_UPFILE
+endform.                    " F4_P_UPFILE
 
 
 *&---------------------------------------------------------------------*
 *&      Form  SETUP_LISTBOXES
 *&---------------------------------------------------------------------*
-FORM setup_listboxes .
+form setup_listboxes .
 
-  DATA: lv_id                   TYPE vrm_id,
-        lt_values               TYPE vrm_values,
-        lt_implementing_classes TYPE seo_relkeys.
+  data: lv_id                   type vrm_id,
+        lt_values               type vrm_values,
+        lt_implementing_classes type seo_relkeys.
 
-  FIELD-SYMBOLS: <ls_implementing_class> LIKE LINE OF lt_implementing_classes,
-                 <ls_value>              LIKE LINE OF lt_values.
+  field-symbols: <ls_implementing_class> like line of lt_implementing_classes,
+                 <ls_value>              like line of lt_values.
 
 *--------------------------------------------------------------------*
 * Possible READER-Classes
 *--------------------------------------------------------------------*
   lv_id = 'LB_READ'.
-  APPEND INITIAL LINE TO lt_values ASSIGNING <ls_value>.
+  append initial line to lt_values assigning <ls_value>.
   <ls_value>-key  = 'Autodetect'(001).
   <ls_value>-text = 'Autodetect'(001).
 
 
-  PERFORM get_implementing_classds USING    'ZIF_EXCEL_READER'
-                                   CHANGING lt_implementing_classes.
-  CLEAR lt_values.
-  LOOP AT lt_implementing_classes ASSIGNING <ls_implementing_class>.
+  perform get_implementing_classds using    'ZIF_EXCEL_READER'
+                                   changing lt_implementing_classes.
+  clear lt_values.
+  loop at lt_implementing_classes assigning <ls_implementing_class>.
 
-    APPEND INITIAL LINE TO lt_values ASSIGNING <ls_value>.
+    append initial line to lt_values assigning <ls_value>.
     <ls_value>-key  = <ls_implementing_class>-clsname.
     <ls_value>-text = <ls_implementing_class>-clsname.
 
-  ENDLOOP.
+  endloop.
 
-  CALL FUNCTION 'VRM_SET_VALUES'
-    EXPORTING
+  call function 'VRM_SET_VALUES'
+    exporting
       id              = lv_id
       values          = lt_values
-    EXCEPTIONS
+    exceptions
       id_illegal_name = 1
-      OTHERS          = 2.
+      others          = 2.
 
 *--------------------------------------------------------------------*
 * Possible WRITER-Classes
 *--------------------------------------------------------------------*
   lv_id = 'LB_WRITE'.
-  APPEND INITIAL LINE TO lt_values ASSIGNING <ls_value>.
+  append initial line to lt_values assigning <ls_value>.
   <ls_value>-key  = 'Autodetect'(001).
   <ls_value>-text = 'Autodetect'(001).
 
 
-  PERFORM get_implementing_classds USING    'ZIF_EXCEL_WRITER'
-                                   CHANGING lt_implementing_classes.
-  CLEAR lt_values.
-  LOOP AT lt_implementing_classes ASSIGNING <ls_implementing_class>.
+  perform get_implementing_classds using    'ZIF_EXCEL_WRITER'
+                                   changing lt_implementing_classes.
+  clear lt_values.
+  loop at lt_implementing_classes assigning <ls_implementing_class>.
 
-    APPEND INITIAL LINE TO lt_values ASSIGNING <ls_value>.
+    append initial line to lt_values assigning <ls_value>.
     <ls_value>-key  = <ls_implementing_class>-clsname.
     <ls_value>-text = <ls_implementing_class>-clsname.
 
-  ENDLOOP.
+  endloop.
 
-  CALL FUNCTION 'VRM_SET_VALUES'
-    EXPORTING
+  call function 'VRM_SET_VALUES'
+    exporting
       id              = lv_id
       values          = lt_values
-    EXCEPTIONS
+    exceptions
       id_illegal_name = 1
-      OTHERS          = 2.
+      others          = 2.
 
-ENDFORM.                    " SETUP_LISTBOXES
+endform.                    " SETUP_LISTBOXES
 
 
 *&---------------------------------------------------------------------*
 *&      Form  GET_IMPLEMENTING_CLASSDS
 *&---------------------------------------------------------------------*
-FORM get_implementing_classds  USING    iv_interface_name       TYPE clike
-                               CHANGING ct_implementing_classes TYPE seo_relkeys.
+form get_implementing_classds  using    iv_interface_name       type clike
+                               changing ct_implementing_classes type seo_relkeys.
 
-  DATA: lo_oo_interface            TYPE REF TO cl_oo_interface,
-        lo_oo_class                TYPE REF TO cl_oo_class,
-        lt_implementing_subclasses TYPE seo_relkeys.
+  data: lo_oo_interface            type ref to cl_oo_interface,
+        lo_oo_class                type ref to cl_oo_class,
+        lt_implementing_subclasses type seo_relkeys.
 
-  FIELD-SYMBOLS: <ls_implementing_class> LIKE LINE OF ct_implementing_classes.
+  field-symbols: <ls_implementing_class> like line of ct_implementing_classes.
 
-  TRY.
+  try.
       lo_oo_interface ?= cl_oo_interface=>get_instance( iv_interface_name ).
-    CATCH cx_class_not_existent.
-      RETURN.
-  ENDTRY.
+    catch cx_class_not_existent.
+      return.
+  endtry.
   ct_implementing_classes = lo_oo_interface->get_implementing_classes( ).
 
-  LOOP AT ct_implementing_classes ASSIGNING <ls_implementing_class>.
-    TRY.
+  loop at ct_implementing_classes assigning <ls_implementing_class>.
+    try.
         lo_oo_class ?= cl_oo_class=>get_instance( <ls_implementing_class>-clsname ).
         lt_implementing_subclasses = lo_oo_class->get_subclasses( ).
-        APPEND LINES OF lt_implementing_subclasses TO ct_implementing_classes.
-      CATCH cx_class_not_existent.
-    ENDTRY.
-  ENDLOOP.
+        append lines of lt_implementing_subclasses to ct_implementing_classes.
+      catch cx_class_not_existent.
+    endtry.
+  endloop.
 
 
-ENDFORM.                    " GET_IMPLEMENTING_CLASSDS
+endform.                    " GET_IMPLEMENTING_CLASSDS
 
 
 *&---------------------------------------------------------------------*
 *&      Form  READ_TEMPLATE
 *&---------------------------------------------------------------------*
-FORM read_template RAISING zcx_excel .
+form read_template raising zcx_excel .
 
-  CASE lb_read.
-    WHEN 'Autodetect'(001).
-      FIND REGEX '(\.xlsx|\.xlsm)\s*$' IN p_upfile SUBMATCHES lv_extension.
-      TRANSLATE lv_extension TO UPPER CASE.
-      CASE lv_extension.
+  case lb_read.
+    when 'Autodetect'(001).
+      find regex '(\.xlsx|\.xlsm)\s*$' in p_upfile submatches lv_extension.
+      translate lv_extension to upper case.
+      case lv_extension.
 
-        WHEN '.XLSX'.
-          CREATE OBJECT reader TYPE zcl_excel_reader_2007.
+        when '.XLSX'.
+          create object reader type zcl_excel_reader_2007.
           excel = reader->load_file(  p_upfile ).
           "Use template for charts
           excel->use_template = abap_true.
 
-        WHEN '.XLSM'.
-          CREATE OBJECT reader TYPE zcl_excel_reader_xlsm.
+        when '.XLSM'.
+          create object reader type zcl_excel_reader_xlsm.
           excel = reader->load_file(  p_upfile ).
           "Use template for charts
           excel->use_template = abap_true.
 
-        WHEN OTHERS.
-          MESSAGE 'Unsupported filetype' TYPE 'I'.
-          RETURN.
+        when others.
+          message 'Unsupported filetype' type 'I'.
+          return.
 
-      ENDCASE.
+      endcase.
 
-    WHEN OTHERS.
-      CREATE OBJECT reader TYPE (lb_read).
+    when others.
+      create object reader type (lb_read).
       excel = reader->load_file(  p_upfile ).
       "Use template for charts
       excel->use_template = abap_true.
 
-  ENDCASE.
+  endcase.
 
-ENDFORM.                    " READ_TEMPLATE
+endform.                    " READ_TEMPLATE
 
 
 *&---------------------------------------------------------------------*
 *&      Form  WRITE_TEMPLATE
 *&---------------------------------------------------------------------*
-FORM write_template  RAISING zcx_excel.
+form write_template  raising zcx_excel.
 
-  CASE lb_write.
+  case lb_write.
 
-    WHEN 'Autodetect'(001).
-      FIND REGEX '(\.xlsx|\.xlsm)\s*$' IN p_upfile SUBMATCHES lv_extension.
-      TRANSLATE lv_extension TO UPPER CASE.
-      CASE lv_extension.
+    when 'Autodetect'(001).
+      find regex '(\.xlsx|\.xlsm)\s*$' in p_upfile submatches lv_extension.
+      translate lv_extension to upper case.
+      case lv_extension.
 
-        WHEN '.XLSX'.
-          REPLACE '&' IN gc_save_file_name WITH 'xlsx'.  " Pass extension for standard writer
+        when '.XLSX'.
+          replace '&' in gc_save_file_name with 'xlsx'.  " Pass extension for standard writer
           lcl_output=>output( excel ).
 
-        WHEN '.XLSM'.
-          REPLACE '&' IN gc_save_file_name WITH 'xlsm'.  " Pass extension for macro-writer
+        when '.XLSM'.
+          replace '&' in gc_save_file_name with 'xlsm'.  " Pass extension for macro-writer
           lcl_output=>output( cl_excel            = excel
                               iv_writerclass_name = 'ZCL_EXCEL_WRITER_XLSM' ).
 
-        WHEN OTHERS.
-          MESSAGE 'Unsupported filetype' TYPE 'I'.
-          RETURN.
+        when others.
+          message 'Unsupported filetype' type 'I'.
+          return.
 
-      ENDCASE.
+      endcase.
 
-    WHEN OTHERS.
+    when others.
       lcl_output=>output( cl_excel            = excel
                           iv_writerclass_name = lb_write ).
-  ENDCASE.
+  endcase.
 
-ENDFORM.                    " WRITE_TEMPLATE
+endform.                    " WRITE_TEMPLATE

@@ -6,26 +6,26 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel4.
+report zdemo_excel4.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
 
-      lo_hyperlink            TYPE REF TO zcl_excel_hyperlink,
+      lo_hyperlink type ref to zcl_excel_hyperlink,
 
-      lv_tabcolor             TYPE zexcel_s_tabcolor,
+      lv_tabcolor  type zexcel_s_tabcolor,
 
-      ls_header               TYPE zexcel_s_worksheet_head_foot,
-      ls_footer               TYPE zexcel_s_worksheet_head_foot.
+      ls_header    type zexcel_s_worksheet_head_foot,
+      ls_footer    type zexcel_s_worksheet_head_foot.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '04_Sheets.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '04_Sheets.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).

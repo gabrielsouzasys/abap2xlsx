@@ -6,35 +6,35 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel39.
+report zdemo_excel39.
 
-DATA: lo_excel     TYPE REF TO zcl_excel,
-      lo_worksheet TYPE REF TO zcl_excel_worksheet,
-      lo_drawing   TYPE REF TO zcl_excel_drawing.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_drawing   type ref to zcl_excel_drawing.
 
-DATA lv_value TYPE i.
+data lv_value type i.
 
-DATA: ls_io TYPE skwf_io.
+data: ls_io type skwf_io.
 
-DATA: ls_upper TYPE zexcel_drawing_location,
-      ls_lower TYPE zexcel_drawing_location.
+data: ls_upper type zexcel_drawing_location,
+      ls_lower type zexcel_drawing_location.
 
-DATA: lo_bar1         TYPE REF TO zcl_excel_graph_bars,
-      lo_bar1_stacked TYPE REF TO zcl_excel_graph_bars,
-      lo_bar2         TYPE REF TO zcl_excel_graph_bars,
-      lo_pie          TYPE REF TO zcl_excel_graph_pie,
-      lo_line         TYPE REF TO zcl_excel_graph_line.
+data: lo_bar1         type ref to zcl_excel_graph_bars,
+      lo_bar1_stacked type ref to zcl_excel_graph_bars,
+      lo_bar2         type ref to zcl_excel_graph_bars,
+      lo_pie          type ref to zcl_excel_graph_pie,
+      lo_line         type ref to zcl_excel_graph_line.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '39_Charts.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '39_Charts.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Create a pie chart and series
-  CREATE OBJECT lo_pie.
+  create object lo_pie.
 
-  CALL METHOD lo_pie->create_serie
-    EXPORTING
+  call method lo_pie->create_serie
+    exporting
       ip_order        = 0
       ip_sheet        = 'Values'
       ip_lbl_from_col = 'B'
@@ -51,26 +51,26 @@ START-OF-SELECTION.
   lo_pie->set_style( zcl_excel_graph=>c_style_15 ).
 
   " Create a bar chart, series and axes
-  CREATE OBJECT lo_bar1.
+  create object lo_bar1.
 
-  CALL METHOD lo_bar1->create_serie
-    EXPORTING
+  call method lo_bar1->create_serie
+    exporting
       ip_order            = 0
       ip_invertifnegative = zcl_excel_graph_bars=>c_invertifnegative_no
       ip_lbl              = 'Values!$D$1:$D$3'
       ip_ref              = 'Values!$C$1:$C$3'
       ip_sername          = 'My serie 1'.
 
-  CALL METHOD lo_bar1->create_serie
-    EXPORTING
+  call method lo_bar1->create_serie
+    exporting
       ip_order            = 1
       ip_invertifnegative = zcl_excel_graph_bars=>c_invertifnegative_no
       ip_lbl              = 'Values!$B$1:$B$3'
       ip_ref              = 'Values!$A$1:$A$3'
       ip_sername          = 'My serie 2'.
 
-  CALL METHOD lo_bar1->create_ax
-    EXPORTING
+  call method lo_bar1->create_ax
+    exporting
 *     ip_axid =
       ip_type = zcl_excel_graph_bars=>c_catax
 *     ip_orientation   =
@@ -90,8 +90,8 @@ START-OF-SELECTION.
 *     ip_crossbetween  =
     .
 
-  CALL METHOD lo_bar1->create_ax
-    EXPORTING
+  call method lo_bar1->create_ax
+    exporting
 *     ip_axid =
       ip_type = zcl_excel_graph_bars=>c_valax
 *     ip_orientation   =
@@ -119,30 +119,30 @@ START-OF-SELECTION.
   lo_bar1->set_print_lbl( zcl_excel_graph_bars=>c_show_false ).
 
 * Same barchart - but this time stacked
-  CREATE OBJECT lo_bar1_stacked.
+  create object lo_bar1_stacked.
 
-  CALL METHOD lo_bar1_stacked->create_serie
-    EXPORTING
+  call method lo_bar1_stacked->create_serie
+    exporting
       ip_order            = 0
       ip_invertifnegative = zcl_excel_graph_bars=>c_invertifnegative_no
       ip_lbl              = 'Values!$D$1:$D$3'
       ip_ref              = 'Values!$C$1:$C$3'
       ip_sername          = 'My serie 1'.
 
-  CALL METHOD lo_bar1_stacked->create_serie
-    EXPORTING
+  call method lo_bar1_stacked->create_serie
+    exporting
       ip_order            = 1
       ip_invertifnegative = zcl_excel_graph_bars=>c_invertifnegative_no
       ip_lbl              = 'Values!$B$1:$B$3'
       ip_ref              = 'Values!$A$1:$A$3'
       ip_sername          = 'My serie 2'.
 
-  CALL METHOD lo_bar1_stacked->create_ax
-    EXPORTING
-      ip_type = zcl_excel_graph_bars=>c_catax .
+  call method lo_bar1_stacked->create_ax
+    exporting
+      ip_type = zcl_excel_graph_bars=>c_catax.
 
-  CALL METHOD lo_bar1_stacked->create_ax
-    EXPORTING
+  call method lo_bar1_stacked->create_ax
+    exporting
       ip_type = zcl_excel_graph_bars=>c_valax.
 
   " Set style
@@ -156,18 +156,18 @@ START-OF-SELECTION.
 
 
   " Create a bar chart, series and axes
-  CREATE OBJECT lo_bar2.
+  create object lo_bar2.
 
-  CALL METHOD lo_bar2->create_serie
-    EXPORTING
+  call method lo_bar2->create_serie
+    exporting
       ip_order            = 0
       ip_invertifnegative = zcl_excel_graph_bars=>c_invertifnegative_yes
       ip_lbl              = 'Values!$D$1:$D$3'
       ip_ref              = 'Values!$C$1:$C$3'
       ip_sername          = 'My serie 1'.
 
-  CALL METHOD lo_bar2->create_ax
-    EXPORTING
+  call method lo_bar2->create_ax
+    exporting
 *     ip_axid =
       ip_type = zcl_excel_graph_bars=>c_catax
 *     ip_orientation   =
@@ -187,8 +187,8 @@ START-OF-SELECTION.
 *     ip_crossbetween  =
     .
 
-  CALL METHOD lo_bar2->create_ax
-    EXPORTING
+  call method lo_bar2->create_ax
+    exporting
 *     ip_axid =
       ip_type = zcl_excel_graph_bars=>c_valax
 *     ip_orientation   =
@@ -217,10 +217,10 @@ START-OF-SELECTION.
   lo_bar2->set_varycolor( zcl_excel_graph_bars=>c_show_true ).
 
   " Create a line chart, series and axes
-  CREATE OBJECT lo_line.
+  create object lo_line.
 
-  CALL METHOD lo_line->create_serie
-    EXPORTING
+  call method lo_line->create_serie
+    exporting
       ip_order   = 0
       ip_symbol  = zcl_excel_graph_line=>c_symbol_auto
       ip_smooth  = zcl_excel_graph_line=>c_show_false
@@ -228,8 +228,8 @@ START-OF-SELECTION.
       ip_ref     = 'Values!$C$1:$C$3'
       ip_sername = 'My serie 1'.
 
-  CALL METHOD lo_line->create_serie
-    EXPORTING
+  call method lo_line->create_serie
+    exporting
       ip_order   = 1
       ip_symbol  = zcl_excel_graph_line=>c_symbol_none
       ip_smooth  = zcl_excel_graph_line=>c_show_false
@@ -237,8 +237,8 @@ START-OF-SELECTION.
       ip_ref     = 'Values!$A$1:$A$3'
       ip_sername = 'My serie 2'.
 
-  CALL METHOD lo_line->create_serie
-    EXPORTING
+  call method lo_line->create_serie
+    exporting
       ip_order   = 2
       ip_symbol  = zcl_excel_graph_line=>c_symbol_auto
       ip_smooth  = zcl_excel_graph_line=>c_show_false
@@ -246,8 +246,8 @@ START-OF-SELECTION.
       ip_ref     = 'Values!$E$1:$E$3'
       ip_sername = 'My serie 3'.
 
-  CALL METHOD lo_line->create_ax
-    EXPORTING
+  call method lo_line->create_ax
+    exporting
 *     ip_axid =
       ip_type = zcl_excel_graph_line=>c_catax
 *     ip_orientation   =
@@ -265,8 +265,8 @@ START-OF-SELECTION.
 *     ip_crossbetween  =
     .
 
-  CALL METHOD lo_line->create_ax
-    EXPORTING
+  call method lo_line->create_ax
+    exporting
 *     ip_axid =
       ip_type = zcl_excel_graph_line=>c_valax
 *     ip_orientation   =
@@ -287,7 +287,7 @@ START-OF-SELECTION.
     .
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet (Pie sheet)
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -304,12 +304,12 @@ START-OF-SELECTION.
   ls_lower-row = 30.
   ls_lower-col = 20.
   lo_drawing->set_position2(
-    EXPORTING
+    exporting
       ip_from   = ls_upper
       ip_to     = ls_lower ).
 
   lo_drawing->set_media(
-    EXPORTING
+    exporting
       ip_media_type = zcl_excel_drawing=>c_media_type_xml ).
 
   lo_worksheet->add_drawing( lo_drawing ).
@@ -332,12 +332,12 @@ START-OF-SELECTION.
   ls_lower-row = 22.
   ls_lower-col = 21.
   lo_drawing->set_position2(
-    EXPORTING
+    exporting
       ip_from   = ls_upper
       ip_to     = ls_lower ).
 
   lo_drawing->set_media(
-    EXPORTING
+    exporting
       ip_media_type = zcl_excel_drawing=>c_media_type_xml ).
 
   lo_worksheet->add_drawing( lo_drawing ).
@@ -354,12 +354,12 @@ START-OF-SELECTION.
   ls_lower-row = 22.
   ls_lower-col = 10.
   lo_drawing->set_position2(
-    EXPORTING
+    exporting
       ip_from   = ls_upper
       ip_to     = ls_lower ).
 
   lo_drawing->set_media(
-    EXPORTING
+    exporting
       ip_media_type = zcl_excel_drawing=>c_media_type_xml ).
 
   lo_worksheet->add_drawing( lo_drawing ).
@@ -382,12 +382,12 @@ START-OF-SELECTION.
   ls_lower-row = 30.
   ls_lower-col = 20.
   lo_drawing->set_position2(
-    EXPORTING
+    exporting
       ip_from   = ls_upper
       ip_to     = ls_lower ).
 
   lo_drawing->set_media(
-    EXPORTING
+    exporting
       ip_media_type = zcl_excel_drawing=>c_media_type_xml ).
 
   lo_worksheet->add_drawing( lo_drawing ).
@@ -410,12 +410,12 @@ START-OF-SELECTION.
   ls_lower-row = 30.
   ls_lower-col = 20.
   lo_drawing->set_position2(
-    EXPORTING
+    exporting
       ip_from   = ls_upper
       ip_to     = ls_lower ).
 
   lo_drawing->set_media(
-    EXPORTING
+    exporting
       ip_media_type = zcl_excel_drawing=>c_media_type_xml ).
 
   lo_worksheet->add_drawing( lo_drawing ).

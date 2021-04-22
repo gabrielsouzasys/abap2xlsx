@@ -4,89 +4,89 @@
 * export data from ALV (CL_GUI_ALV_GRID) object or cl_salv_table object
 * to Excel.
 *--------------------------------------------------------------------*
-REPORT zdemo_excel32.
+report zdemo_excel32.
 
 *----------------------------------------------------------------------*
 *       CLASS lcl_handle_events DEFINITION
 *----------------------------------------------------------------------*
 *
 *----------------------------------------------------------------------*
-CLASS lcl_handle_events DEFINITION.
-  PUBLIC SECTION.
-    METHODS:
-      on_user_command FOR EVENT added_function OF cl_salv_events
-        IMPORTING e_salv_function.
-ENDCLASS.                    "lcl_handle_events DEFINITION
+class lcl_handle_events definition.
+  public section.
+    methods:
+      on_user_command for event added_function of cl_salv_events
+        importing e_salv_function.
+endclass.                    "lcl_handle_events DEFINITION
 
 *----------------------------------------------------------------------*
 *       CLASS lcl_handle_events IMPLEMENTATION
 *----------------------------------------------------------------------*
 *
 *----------------------------------------------------------------------*
-CLASS lcl_handle_events IMPLEMENTATION.
-  METHOD on_user_command.
-    PERFORM user_command." using e_salv_function text-i08.
-  ENDMETHOD.                    "on_user_command
-ENDCLASS.                     "lcl_handle_events IMPLEMENTATION
+class lcl_handle_events implementation.
+  method on_user_command.
+    perform user_command." using e_salv_function text-i08.
+  endmethod.                    "on_user_command
+endclass.                     "lcl_handle_events IMPLEMENTATION
 
 *--------------------------------------------------------------------*
 * DATA DECLARATION
 *--------------------------------------------------------------------*
 
-DATA: lo_excel          TYPE REF TO zcl_excel,
-      lo_worksheet      TYPE REF TO zcl_excel_worksheet,
-      lo_salv           TYPE REF TO cl_salv_table,
-      gr_events         TYPE REF TO lcl_handle_events,
-      lr_events         TYPE REF TO cl_salv_events_table,
-      gt_sbook          TYPE TABLE OF sbook.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_salv      type ref to cl_salv_table,
+      gr_events    type ref to lcl_handle_events,
+      lr_events    type ref to cl_salv_events_table,
+      gt_sbook     type table of sbook.
 
-DATA: l_path            TYPE string,  " local dir
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
+data: l_path            type string,  " local dir
+      lv_workdir        type string,
+      lv_file_separator type c.
 
-CONSTANTS:
-      lv_default_file_name TYPE string VALUE '32_Export_ALV.xlsx',
-      lv_default_file_name2 TYPE string VALUE '32_Export_Convert.xlsx'.
+constants:
+  lv_default_file_name  type string value '32_Export_ALV.xlsx',
+  lv_default_file_name2 type string value '32_Export_Convert.xlsx'.
 *--------------------------------------------------------------------*
 *START-OF-SELECTION
 *--------------------------------------------------------------------*
 
-START-OF-SELECTION.
+start-of-selection.
 
 * get data
 * ------------------------------------------
 
-  SELECT *
-      INTO TABLE gt_sbook[]
-      FROM sbook                                        "#EC CI_NOWHERE
-      UP TO 100 ROWS.
+  select *
+      into table gt_sbook[]
+      from sbook                                        "#EC CI_NOWHERE
+      up to 100 rows.
 
 * Display ALV
 * ------------------------------------------
 
-  TRY.
+  try.
       cl_salv_table=>factory(
-        EXPORTING
+        exporting
           list_display = abap_false
-        IMPORTING
+        importing
           r_salv_table = lo_salv
-        CHANGING
+        changing
           t_table      = gt_sbook[] ).
-    CATCH cx_salv_msg .
-  ENDTRY.
+    catch cx_salv_msg .
+  endtry.
 
-  TRY.
+  try.
       lo_salv->set_screen_status(
-        EXPORTING
+        exporting
           report        = sy-repid
           pfstatus      = 'ALV_STATUS'
           set_functions = lo_salv->c_functions_all ).
-    CATCH cx_salv_msg .
-  ENDTRY.
+    catch cx_salv_msg .
+  endtry.
 
   lr_events = lo_salv->get_event( ).
-  CREATE OBJECT gr_events.
-  SET HANDLER gr_events->on_user_command FOR lr_events.
+  create object gr_events.
+  set handler gr_events->on_user_command for lr_events.
 
   lo_salv->display( ).
 
@@ -96,53 +96,53 @@ START-OF-SELECTION.
 *&---------------------------------------------------------------------*
 *      ALV user command
 *--------------------------------------------------------------------*
-FORM user_command .
+form user_command .
 
 * get save file path
-      cl_gui_frontend_services=>get_sapgui_workdir( CHANGING sapworkdir = l_path ).
-      cl_gui_cfw=>flush( ).
-      cl_gui_frontend_services=>directory_browse(
-        EXPORTING initial_folder = l_path
-        CHANGING selected_folder = l_path ).
+  cl_gui_frontend_services=>get_sapgui_workdir( changing sapworkdir = l_path ).
+  cl_gui_cfw=>flush( ).
+  cl_gui_frontend_services=>directory_browse(
+    exporting initial_folder = l_path
+    changing selected_folder = l_path ).
 
-      IF l_path IS INITIAL.
-        cl_gui_frontend_services=>get_sapgui_workdir(
-          CHANGING sapworkdir = lv_workdir ).
-        l_path = lv_workdir.
-      ENDIF.
+  if l_path is initial.
+    cl_gui_frontend_services=>get_sapgui_workdir(
+      changing sapworkdir = lv_workdir ).
+    l_path = lv_workdir.
+  endif.
 
-      cl_gui_frontend_services=>get_file_separator(
-        CHANGING file_separator = lv_file_separator ).
+  cl_gui_frontend_services=>get_file_separator(
+    changing file_separator = lv_file_separator ).
 
 
 
 * export file to save file path
-  CASE sy-ucomm.
-    WHEN 'EXCELBIND'.
-      CONCATENATE l_path lv_file_separator lv_default_file_name
-                  INTO l_path.
-      PERFORM export_to_excel_bind.
+  case sy-ucomm.
+    when 'EXCELBIND'.
+      concatenate l_path lv_file_separator lv_default_file_name
+                  into l_path.
+      perform export_to_excel_bind.
 
-    WHEN 'EXCELCONV'.
+    when 'EXCELCONV'.
 
-      CONCATENATE l_path lv_file_separator lv_default_file_name2
-                  INTO l_path.
-      PERFORM export_to_excel_conv.
+      concatenate l_path lv_file_separator lv_default_file_name2
+                  into l_path.
+      perform export_to_excel_conv.
 
-  ENDCASE.
-ENDFORM.                    " USER_COMMAND
+  endcase.
+endform.                    " USER_COMMAND
 *--------------------------------------------------------------------*
 * FORM EXPORT_TO_EXCEL_CONV
 *--------------------------------------------------------------------*
 * This subroutine is principal demo session
 *--------------------------------------------------------------------*
-FORM export_to_excel_conv RAISING zcx_excel.
-  DATA: lo_converter TYPE REF TO zcl_excel_converter.
+form export_to_excel_conv raising zcx_excel.
+  data: lo_converter type ref to zcl_excel_converter.
 
-  CREATE OBJECT lo_converter.
+  create object lo_converter.
 *TRY.
   lo_converter->convert(
-    EXPORTING
+    exporting
       io_alv        = lo_salv
       it_table      = gt_sbook
       i_row_int     = 2
@@ -157,16 +157,16 @@ FORM export_to_excel_conv RAISING zcx_excel.
 *ENDTRY.
   lo_converter->write_file( i_path = l_path ).
 
-ENDFORM.                    "EXPORT_TO_EXCEL_CONV
+endform.                    "EXPORT_TO_EXCEL_CONV
 
 *--------------------------------------------------------------------*
 * FORM EXPORT_TO_EXCEL_BIND
 *--------------------------------------------------------------------*
 * This subroutine is principal demo session
 *--------------------------------------------------------------------*
-FORM export_to_excel_bind RAISING zcx_excel.
+form export_to_excel_bind raising zcx_excel.
 * create zcl_excel_worksheet object
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
   lo_worksheet = lo_excel->get_active_worksheet( ).
   lo_worksheet->set_title( ip_title = 'Sheet1' ).
 
@@ -182,9 +182,9 @@ FORM export_to_excel_bind RAISING zcx_excel.
 *endtry.
 
 
-  PERFORM write_file.
+  perform write_file.
 
-ENDFORM.                    "EXPORT_TO_EXCEL_BIND
+endform.                    "EXPORT_TO_EXCEL_BIND
 *&---------------------------------------------------------------------*
 *&      Form  WRITE_FILE
 *&---------------------------------------------------------------------*
@@ -193,44 +193,44 @@ ENDFORM.                    "EXPORT_TO_EXCEL_BIND
 *  -->  p1        text
 *  <--  p2        text
 *----------------------------------------------------------------------*
-FORM write_file .
-  DATA: lt_file     TYPE solix_tab,
-        l_bytecount TYPE i,
-        l_file      TYPE xstring.
+form write_file .
+  data: lt_file     type solix_tab,
+        l_bytecount type i,
+        l_file      type xstring.
 
-  DATA: lo_excel_writer         TYPE REF TO zif_excel_writer.
+  data: lo_excel_writer         type ref to zif_excel_writer.
 
-  DATA: ls_seoclass TYPE seoclass.
+  data: ls_seoclass type seoclass.
 
-  CREATE OBJECT lo_excel_writer TYPE zcl_excel_writer_2007.
+  create object lo_excel_writer type zcl_excel_writer_2007.
   l_file = lo_excel_writer->write_file( lo_excel ).
 
-  SELECT SINGLE * INTO ls_seoclass
-    FROM seoclass
-    WHERE clsname = 'CL_BCS_CONVERT'.
+  select single * into ls_seoclass
+    from seoclass
+    where clsname = 'CL_BCS_CONVERT'.
 
-  IF sy-subrc = 0.
-    CALL METHOD (ls_seoclass-clsname)=>xstring_to_solix
-      EXPORTING
+  if sy-subrc = 0.
+    call method (ls_seoclass-clsname)=>xstring_to_solix
+      exporting
         iv_xstring = l_file
-      RECEIVING
+      receiving
         et_solix   = lt_file.
 
-    l_bytecount = XSTRLEN( l_file ).
-  ELSE.
+    l_bytecount = xstrlen( l_file ).
+  else.
     " Convert to binary
-    CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
-      EXPORTING
+    call function 'SCMS_XSTRING_TO_BINARY'
+      exporting
         buffer        = l_file
-      IMPORTING
+      importing
         output_length = l_bytecount
-      TABLES
+      tables
         binary_tab    = lt_file.
-  ENDIF.
+  endif.
 
-  cl_gui_frontend_services=>gui_download( EXPORTING bin_filesize = l_bytecount
+  cl_gui_frontend_services=>gui_download( exporting bin_filesize = l_bytecount
                                                     filename     = l_path
                                                     filetype     = 'BIN'
-                                           CHANGING data_tab     = lt_file ).
+                                           changing data_tab     = lt_file ).
 
-ENDFORM.                    " WRITE_FILE
+endform.                    " WRITE_FILE

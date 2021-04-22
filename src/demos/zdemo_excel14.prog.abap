@@ -6,46 +6,46 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel14.
+report zdemo_excel14.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_style_center         TYPE REF TO zcl_excel_style,
-      lo_style_right          TYPE REF TO zcl_excel_style,
-      lo_style_left           TYPE REF TO zcl_excel_style,
-      lo_style_general        TYPE REF TO zcl_excel_style,
-      lo_style_bottom         TYPE REF TO zcl_excel_style,
-      lo_style_middle         TYPE REF TO zcl_excel_style,
-      lo_style_top            TYPE REF TO zcl_excel_style,
-      lo_style_justify        TYPE REF TO zcl_excel_style,
-      lo_style_mixed          TYPE REF TO zcl_excel_style,
-      lo_style_mixed_wrap     TYPE REF TO zcl_excel_style,
-      lo_style_rotated        TYPE REF TO zcl_excel_style,
-      lo_style_shrink         TYPE REF TO zcl_excel_style,
-      lo_style_indent         TYPE REF TO zcl_excel_style,
-      lv_style_center_guid    TYPE zexcel_cell_style,
-      lv_style_right_guid     TYPE zexcel_cell_style,
-      lv_style_left_guid      TYPE zexcel_cell_style,
-      lv_style_general_guid   TYPE zexcel_cell_style,
-      lv_style_bottom_guid    TYPE zexcel_cell_style,
-      lv_style_middle_guid    TYPE zexcel_cell_style,
-      lv_style_top_guid       TYPE zexcel_cell_style,
-      lv_style_justify_guid   TYPE zexcel_cell_style,
-      lv_style_mixed_guid     TYPE zexcel_cell_style,
-      lv_style_mixed_wrap_guid TYPE zexcel_cell_style,
-      lv_style_rotated_guid   TYPE zexcel_cell_style,
-      lv_style_shrink_guid    TYPE zexcel_cell_style,
-      lv_style_indent_guid    TYPE zexcel_cell_style.
+data: lo_excel                 type ref to zcl_excel,
+      lo_worksheet             type ref to zcl_excel_worksheet,
+      lo_style_center          type ref to zcl_excel_style,
+      lo_style_right           type ref to zcl_excel_style,
+      lo_style_left            type ref to zcl_excel_style,
+      lo_style_general         type ref to zcl_excel_style,
+      lo_style_bottom          type ref to zcl_excel_style,
+      lo_style_middle          type ref to zcl_excel_style,
+      lo_style_top             type ref to zcl_excel_style,
+      lo_style_justify         type ref to zcl_excel_style,
+      lo_style_mixed           type ref to zcl_excel_style,
+      lo_style_mixed_wrap      type ref to zcl_excel_style,
+      lo_style_rotated         type ref to zcl_excel_style,
+      lo_style_shrink          type ref to zcl_excel_style,
+      lo_style_indent          type ref to zcl_excel_style,
+      lv_style_center_guid     type zexcel_cell_style,
+      lv_style_right_guid      type zexcel_cell_style,
+      lv_style_left_guid       type zexcel_cell_style,
+      lv_style_general_guid    type zexcel_cell_style,
+      lv_style_bottom_guid     type zexcel_cell_style,
+      lv_style_middle_guid     type zexcel_cell_style,
+      lv_style_top_guid        type zexcel_cell_style,
+      lv_style_justify_guid    type zexcel_cell_style,
+      lv_style_mixed_guid      type zexcel_cell_style,
+      lv_style_mixed_wrap_guid type zexcel_cell_style,
+      lv_style_rotated_guid    type zexcel_cell_style,
+      lv_style_shrink_guid     type zexcel_cell_style,
+      lv_style_indent_guid     type zexcel_cell_style.
 
-DATA: lo_row        TYPE REF TO zcl_excel_row.
+data: lo_row        type ref to zcl_excel_row.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '14_Alignment.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '14_Alignment.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
@@ -116,10 +116,10 @@ START-OF-SELECTION.
 
 
   " Set row size for first 7 rows to 40
-  DO 7 TIMES.
+  do 7 times.
     lo_row = lo_worksheet->get_row( sy-index ).
     lo_row->set_row_height( 40 ).
-  ENDDO.
+  enddo.
 
   "Horizontal alignment
   lo_worksheet->set_cell( ip_row = 4 ip_column = 'B' ip_value = 'Centered Text' ip_style = lv_style_center_guid ).
@@ -149,9 +149,9 @@ START-OF-SELECTION.
                           ip_style = lv_style_rotated_guid ).
 
   " forced line break
-  DATA: lv_value TYPE string.
-  CONCATENATE 'This is a wrapped text centered in the middle' cl_abap_char_utilities=>cr_lf
-    'and a manuall line break.' INTO lv_value.
+  data: lv_value type string.
+  concatenate 'This is a wrapped text centered in the middle' cl_abap_char_utilities=>cr_lf
+    'and a manuall line break.' into lv_value.
   lo_worksheet->set_cell( ip_row = 11 ip_column = 'B'
                           ip_value = lv_value
                           ip_style = lv_style_mixed_guid ).

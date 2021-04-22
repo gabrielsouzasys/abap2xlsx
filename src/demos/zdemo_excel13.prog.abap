@@ -6,27 +6,27 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel13.
+report zdemo_excel13.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lv_style_bold_border_guid TYPE zexcel_cell_style,
-      lo_style_bold_border TYPE REF TO zcl_excel_style,
-      lo_border_dark TYPE REF TO zcl_excel_style_border.
+data: lo_excel                  type ref to zcl_excel,
+      lo_worksheet              type ref to zcl_excel_worksheet,
+      lv_style_bold_border_guid type zexcel_cell_style,
+      lo_style_bold_border      type ref to zcl_excel_style,
+      lo_border_dark            type ref to zcl_excel_style_border.
 
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '13_MergedCells.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '13_MergedCells.xlsx'.
+include zdemo_excel_outputopt_incl.
 
-START-OF-SELECTION.
+start-of-selection.
 
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
   lo_worksheet->set_title( 'sheet1' ).
 
-  CREATE OBJECT lo_border_dark.
+  create object lo_border_dark.
   lo_border_dark->border_color-rgb = zcl_excel_style_color=>c_black.
   lo_border_dark->border_style = zcl_excel_style_border=>c_border_thin.
 

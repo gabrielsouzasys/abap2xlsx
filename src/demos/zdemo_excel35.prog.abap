@@ -6,68 +6,68 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel35.
+report zdemo_excel35.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_excel_writer         TYPE REF TO zif_excel_writer,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_style_bold           TYPE REF TO zcl_excel_style,
-      lo_style_underline      TYPE REF TO zcl_excel_style,
-      lo_style_filled         TYPE REF TO zcl_excel_style,
-      lo_style_border         TYPE REF TO zcl_excel_style,
-      lo_style_button         TYPE REF TO zcl_excel_style,
-      lo_border_dark          TYPE REF TO zcl_excel_style_border,
-      lo_border_light         TYPE REF TO zcl_excel_style_border.
+data: lo_excel           type ref to zcl_excel,
+      lo_excel_writer    type ref to zif_excel_writer,
+      lo_worksheet       type ref to zcl_excel_worksheet,
+      lo_style_bold      type ref to zcl_excel_style,
+      lo_style_underline type ref to zcl_excel_style,
+      lo_style_filled    type ref to zcl_excel_style,
+      lo_style_border    type ref to zcl_excel_style,
+      lo_style_button    type ref to zcl_excel_style,
+      lo_border_dark     type ref to zcl_excel_style_border,
+      lo_border_light    type ref to zcl_excel_style_border.
 
-DATA: lv_style_bold_guid         TYPE zexcel_cell_style,
-      lv_style_underline_guid    TYPE zexcel_cell_style,
-      lv_style_filled_guid       TYPE zexcel_cell_style,
-      lv_style_filled_green_guid TYPE zexcel_cell_style,
-      lv_style_border_guid       TYPE zexcel_cell_style,
-      lv_style_button_guid       TYPE zexcel_cell_style,
-      lv_style_filled_turquoise_guid TYPE zexcel_cell_style.
+data: lv_style_bold_guid             type zexcel_cell_style,
+      lv_style_underline_guid        type zexcel_cell_style,
+      lv_style_filled_guid           type zexcel_cell_style,
+      lv_style_filled_green_guid     type zexcel_cell_style,
+      lv_style_border_guid           type zexcel_cell_style,
+      lv_style_button_guid           type zexcel_cell_style,
+      lv_style_filled_turquoise_guid type zexcel_cell_style.
 
-DATA: lv_file                 TYPE xstring,
-      lv_bytecount            TYPE i,
-      lt_file_tab             TYPE solix_tab.
+data: lv_file      type xstring,
+      lv_bytecount type i,
+      lt_file_tab  type solix_tab.
 
-DATA: lv_full_path      TYPE string,
-      lv_workdir        TYPE string,
-      lv_file_separator TYPE c.
+data: lv_full_path      type string,
+      lv_workdir        type string,
+      lv_file_separator type c.
 
-CONSTANTS: lv_default_file_name TYPE string VALUE '35_Static_Styles.xlsx'.
+constants: lv_default_file_name type string value '35_Static_Styles.xlsx'.
 
-PARAMETERS: p_path TYPE zexcel_export_dir.
+parameters: p_path type zexcel_export_dir.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_path.
+at selection-screen on value-request for p_path.
   lv_workdir = p_path.
-  cl_gui_frontend_services=>directory_browse( EXPORTING initial_folder  = lv_workdir
-                                              CHANGING  selected_folder = lv_workdir ).
+  cl_gui_frontend_services=>directory_browse( exporting initial_folder  = lv_workdir
+                                              changing  selected_folder = lv_workdir ).
   p_path = lv_workdir.
 
-INITIALIZATION.
-  cl_gui_frontend_services=>GET_DESKTOP_DIRECTORY( CHANGING DESKTOP_DIRECTORY = lv_workdir ).
+initialization.
+  cl_gui_frontend_services=>get_desktop_directory( changing desktop_directory = lv_workdir ).
   cl_gui_cfw=>flush( ).
   p_path = lv_workdir.
 
   sy-title = 'ZDEMO_EXCEL2;Issue 139: Change cellstyle retroactivly'.
 
-START-OF-SELECTION.
+start-of-selection.
 
-  IF p_path IS INITIAL.
+  if p_path is initial.
     p_path = lv_workdir.
-  ENDIF.
-  cl_gui_frontend_services=>get_file_separator( CHANGING file_separator = lv_file_separator ).
-  CONCATENATE p_path lv_file_separator lv_default_file_name INTO lv_full_path.
+  endif.
+  cl_gui_frontend_services=>get_file_separator( changing file_separator = lv_file_separator ).
+  concatenate p_path lv_file_separator lv_default_file_name into lv_full_path.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Create border object
-  CREATE OBJECT lo_border_dark.
+  create object lo_border_dark.
   lo_border_dark->border_color-rgb = zcl_excel_style_color=>c_black.
   lo_border_dark->border_style = zcl_excel_style_border=>c_border_thin.
-  CREATE OBJECT lo_border_light.
+  create object lo_border_light.
   lo_border_light->border_color-rgb = zcl_excel_style_color=>c_gray.
   lo_border_light->border_style = zcl_excel_style_border=>c_border_thin.
   " Create a bold / italic style
@@ -154,23 +154,23 @@ START-OF-SELECTION.
                                     ip_font_bold                 = abap_true
                                     ip_font_italic               = abap_true ).
 
-  CREATE OBJECT lo_excel_writer TYPE zcl_excel_writer_2007.
+  create object lo_excel_writer type zcl_excel_writer_2007.
   lv_file = lo_excel_writer->write_file( lo_excel ).
 
   " Convert to binary
-  CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
-    EXPORTING
+  call function 'SCMS_XSTRING_TO_BINARY'
+    exporting
       buffer        = lv_file
-    IMPORTING
+    importing
       output_length = lv_bytecount
-    TABLES
+    tables
       binary_tab    = lt_file_tab.
 *  " This method is only available on AS ABAP > 6.40
 *  lt_file_tab = cl_bcs_convert=>xstring_to_solix( iv_xstring  = lv_file ).
 *  lv_bytecount = xstrlen( lv_file ).
 
   " Save the file
-  cl_gui_frontend_services=>gui_download( EXPORTING bin_filesize = lv_bytecount
+  cl_gui_frontend_services=>gui_download( exporting bin_filesize = lv_bytecount
                                                     filename     = lv_full_path
                                                     filetype     = 'BIN'
-                                           CHANGING data_tab     = lt_file_tab ).
+                                           changing data_tab     = lt_file_tab ).

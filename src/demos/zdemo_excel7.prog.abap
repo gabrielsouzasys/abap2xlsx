@@ -6,26 +6,26 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel7.
+report zdemo_excel7.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_style_cond           TYPE REF TO zcl_excel_style_cond.
+data: lo_excel      type ref to zcl_excel,
+      lo_worksheet  type ref to zcl_excel_worksheet,
+      lo_style_cond type ref to zcl_excel_style_cond.
 
-DATA: ls_iconset3             TYPE zexcel_conditional_iconset,
-      ls_iconset4             TYPE zexcel_conditional_iconset,
-      ls_iconset5             TYPE zexcel_conditional_iconset,
-      ls_databar              TYPE zexcel_conditional_databar,
-      ls_colorscale2          TYPE zexcel_conditional_colorscale,
-      ls_colorscale3          TYPE zexcel_conditional_colorscale.
+data: ls_iconset3    type zexcel_conditional_iconset,
+      ls_iconset4    type zexcel_conditional_iconset,
+      ls_iconset5    type zexcel_conditional_iconset,
+      ls_databar     type zexcel_conditional_databar,
+      ls_colorscale2 type zexcel_conditional_colorscale,
+      ls_colorscale3 type zexcel_conditional_colorscale.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '07_ConditionalAll.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '07_ConditionalAll.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   ls_iconset3-cfvo1_type               = zcl_excel_style_cond=>c_cfvo_type_percent.
   ls_iconset3-cfvo1_value              = '0'.

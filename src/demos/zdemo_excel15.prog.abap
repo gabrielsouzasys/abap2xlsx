@@ -8,161 +8,161 @@
 *& Added the functionality to have multiple input and output files
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel15.
+report zdemo_excel15.
 
-TYPE-POOLS: abap.
+type-pools: abap.
 
-TYPES:
-  BEGIN OF t_demo_excel15,
-    input TYPE string,
-  END OF t_demo_excel15.
+types:
+  begin of t_demo_excel15,
+    input type string,
+  end of t_demo_excel15.
 
-CONSTANTS: sheet_with_date_formats TYPE string VALUE '24_Sheets_with_different_default_date_formats.xlsx'.
+constants: sheet_with_date_formats type string value '24_Sheets_with_different_default_date_formats.xlsx'.
 
-DATA: excel           TYPE REF TO zcl_excel,
-      lo_excel_writer TYPE REF TO zif_excel_writer,
-      reader          TYPE REF TO zif_excel_reader.
+data: excel           type ref to zcl_excel,
+      lo_excel_writer type ref to zif_excel_writer,
+      reader          type ref to zif_excel_reader.
 
-DATA: ex  TYPE REF TO zcx_excel,
-      msg TYPE string.
+data: ex  type ref to zcx_excel,
+      msg type string.
 
-DATA: lv_file      TYPE xstring,
-      lv_bytecount TYPE i,
-      lt_file_tab  TYPE solix_tab.
+data: lv_file      type xstring,
+      lv_bytecount type i,
+      lt_file_tab  type solix_tab.
 
-DATA: lv_workdir        TYPE string,
-      output_file_path  TYPE string,
-      input_file_path   TYPE string,
-      lv_file_separator TYPE c.
+data: lv_workdir        type string,
+      output_file_path  type string,
+      input_file_path   type string,
+      lv_file_separator type c.
 
-DATA: worksheet      TYPE REF TO zcl_excel_worksheet,
-      highest_column TYPE zexcel_cell_column,
-      highest_row    TYPE int4,
-      column         TYPE zexcel_cell_column VALUE 1,
-      col_str        TYPE zexcel_cell_column_alpha,
-      row            TYPE int4               VALUE 1,
-      value          TYPE zexcel_cell_value,
-      converted_date TYPE d.
+data: worksheet      type ref to zcl_excel_worksheet,
+      highest_column type zexcel_cell_column,
+      highest_row    type int4,
+      column         type zexcel_cell_column value 1,
+      col_str        type zexcel_cell_column_alpha,
+      row            type int4               value 1,
+      value          type zexcel_cell_value,
+      converted_date type d.
 
-DATA:
-      lt_files       TYPE TABLE OF t_demo_excel15.
-FIELD-SYMBOLS: <wa_files> TYPE t_demo_excel15.
+data:
+      lt_files       type table of t_demo_excel15.
+field-symbols: <wa_files> type t_demo_excel15.
 
-PARAMETERS: p_path  TYPE zexcel_export_dir,
-            p_noout TYPE abap_bool DEFAULT abap_true.
+parameters: p_path  type zexcel_export_dir,
+            p_noout type abap_bool default abap_true.
 
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_path.
+at selection-screen on value-request for p_path.
   lv_workdir = p_path.
-  cl_gui_frontend_services=>directory_browse( EXPORTING initial_folder  = lv_workdir
-                                              CHANGING  selected_folder = lv_workdir ).
+  cl_gui_frontend_services=>directory_browse( exporting initial_folder  = lv_workdir
+                                              changing  selected_folder = lv_workdir ).
   p_path = lv_workdir.
 
-INITIALIZATION.
-  cl_gui_frontend_services=>get_sapgui_workdir( CHANGING sapworkdir = lv_workdir ).
+initialization.
+  cl_gui_frontend_services=>get_sapgui_workdir( changing sapworkdir = lv_workdir ).
   cl_gui_cfw=>flush( ).
   p_path = lv_workdir.
 
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = '01_HelloWorld.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = '02_Styles.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = '03_iTab.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = '04_Sheets.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input = '05_Conditional.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input = '07_ConditionalAll.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = '08_Range.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = '13_MergedCells.xlsx'.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = sheet_with_date_formats.
-  APPEND INITIAL LINE TO lt_files ASSIGNING <wa_files>.
+  append initial line to lt_files assigning <wa_files>.
   <wa_files>-input  = '31_AutosizeWithDifferentFontSizes.xlsx'.
 
-START-OF-SELECTION.
+start-of-selection.
 
-  IF p_path IS INITIAL.
+  if p_path is initial.
     p_path = lv_workdir.
-  ENDIF.
-  cl_gui_frontend_services=>get_file_separator( CHANGING file_separator = lv_file_separator ).
+  endif.
+  cl_gui_frontend_services=>get_file_separator( changing file_separator = lv_file_separator ).
 
-  LOOP AT lt_files ASSIGNING <wa_files>.
-    CONCATENATE p_path lv_file_separator <wa_files>-input INTO input_file_path.
-    CONCATENATE p_path lv_file_separator '15_' <wa_files>-input INTO output_file_path.
-    REPLACE '.xlsx' IN output_file_path WITH 'FromReader.xlsx'.
+  loop at lt_files assigning <wa_files>.
+    concatenate p_path lv_file_separator <wa_files>-input into input_file_path.
+    concatenate p_path lv_file_separator '15_' <wa_files>-input into output_file_path.
+    replace '.xlsx' in output_file_path with 'FromReader.xlsx'.
 
-    TRY.
-        CREATE OBJECT reader TYPE zcl_excel_reader_2007.
+    try.
+        create object reader type zcl_excel_reader_2007.
         excel = reader->load_file( input_file_path ).
 
-        IF p_noout EQ abap_false.
+        if p_noout eq abap_false.
           worksheet = excel->get_active_worksheet( ).
           highest_column = worksheet->get_highest_column( ).
           highest_row    = worksheet->get_highest_row( ).
 
-          WRITE: / 'Filename ', <wa_files>-input.
-          WRITE: / 'Highest column: ', highest_column, 'Highest row: ', highest_row.
-          WRITE: /.
+          write: / 'Filename ', <wa_files>-input.
+          write: / 'Highest column: ', highest_column, 'Highest row: ', highest_row.
+          write: /.
 
-          WHILE row <= highest_row.
-            WHILE column <= highest_column.
+          while row <= highest_row.
+            while column <= highest_column.
               col_str = zcl_excel_common=>convert_column2alpha( column ).
               worksheet->get_cell(
-                EXPORTING
+                exporting
                   ip_column = col_str
                   ip_row    = row
-                IMPORTING
+                importing
                   ep_value = value
               ).
-              WRITE: value.
+              write: value.
               column = column + 1.
-            ENDWHILE.
-            WRITE: /.
+            endwhile.
+            write: /.
             column = 1.
             row = row + 1.
-          ENDWHILE.
-          IF <wa_files>-input = sheet_with_date_formats.
+          endwhile.
+          if <wa_files>-input = sheet_with_date_formats.
             worksheet->get_cell(
-              EXPORTING
+              exporting
                 ip_column = 'A'
                 ip_row = 4
-              IMPORTING
+              importing
                 ep_value = value
             ).
-            WRITE: / 'Date value using get_cell: ', value.
+            write: / 'Date value using get_cell: ', value.
             converted_date = zcl_excel_common=>excel_string_to_date( ip_value = value ).
-            WRITE: / 'Converted date: ', converted_date.
-          ENDIF.
-        ENDIF.
-        CREATE OBJECT lo_excel_writer TYPE zcl_excel_writer_2007.
+            write: / 'Converted date: ', converted_date.
+          endif.
+        endif.
+        create object lo_excel_writer type zcl_excel_writer_2007.
         lv_file = lo_excel_writer->write_file( excel ).
 
         " Convert to binary
-        CALL FUNCTION 'SCMS_XSTRING_TO_BINARY'
-          EXPORTING
+        call function 'SCMS_XSTRING_TO_BINARY'
+          exporting
             buffer        = lv_file
-          IMPORTING
+          importing
             output_length = lv_bytecount
-          TABLES
+          tables
             binary_tab    = lt_file_tab.
 *    " This method is only available on AS ABAP > 6.40
 *    lt_file_tab = cl_bcs_convert=>xstring_to_solix( iv_xstring  = lv_file ).
 *    lv_bytecount = xstrlen( lv_file ).
 
         " Save the file
-        cl_gui_frontend_services=>gui_download( EXPORTING bin_filesize = lv_bytecount
+        cl_gui_frontend_services=>gui_download( exporting bin_filesize = lv_bytecount
                                                           filename     = output_file_path
                                                           filetype     = 'BIN'
-                                                 CHANGING data_tab     = lt_file_tab ).
+                                                 changing data_tab     = lt_file_tab ).
 
 
-      CATCH zcx_excel INTO ex.    " Exceptions for ABAP2XLSX
+      catch zcx_excel into ex.    " Exceptions for ABAP2XLSX
         msg = ex->get_text( ).
-        WRITE: / msg.
-    ENDTRY.
-  ENDLOOP.
+        write: / msg.
+    endtry.
+  endloop.

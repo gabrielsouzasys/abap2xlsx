@@ -6,45 +6,45 @@
 *&
 *&---------------------------------------------------------------------*
 
-REPORT zdemo_excel33.
+report zdemo_excel33.
 
-TYPE-POOLS: abap.
+type-pools: abap.
 
-DATA: lo_excel                TYPE REF TO zcl_excel,
-      lo_worksheet            TYPE REF TO zcl_excel_worksheet,
-      lo_converter            TYPE REF TO zcl_excel_converter,
-      lo_autofilter           TYPE REF TO zcl_excel_autofilter.
+data: lo_excel      type ref to zcl_excel,
+      lo_worksheet  type ref to zcl_excel_worksheet,
+      lo_converter  type ref to zcl_excel_converter,
+      lo_autofilter type ref to zcl_excel_autofilter.
 
-DATA lt_test TYPE TABLE OF t005t.
+data lt_test type table of t005t.
 
-DATA: l_cell_value TYPE zexcel_cell_value,
-      ls_area      TYPE zexcel_s_autofilter_area.
+data: l_cell_value type zexcel_cell_value,
+      ls_area      type zexcel_s_autofilter_area.
 
-CONSTANTS: c_airlines TYPE string VALUE 'Airlines'.
+constants: c_airlines type string value 'Airlines'.
 
-CONSTANTS: gc_save_file_name TYPE string VALUE '33_autofilter.xlsx'.
-INCLUDE zdemo_excel_outputopt_incl.
+constants: gc_save_file_name type string value '33_autofilter.xlsx'.
+include zdemo_excel_outputopt_incl.
 
 
-START-OF-SELECTION.
+start-of-selection.
 
   " Creates active sheet
-  CREATE OBJECT lo_excel.
+  create object lo_excel.
 
   " Get active sheet
   lo_worksheet = lo_excel->get_active_worksheet( ).
   lo_worksheet->set_title( ip_title = 'Internal table' ).
 
-  SELECT * UP TO 2 ROWS FROM t005t INTO TABLE lt_test.  "#EC CI_NOWHERE
+  select * up to 2 rows from t005t into table lt_test.  "#EC CI_NOWHERE
 
-  CREATE OBJECT lo_converter.
+  create object lo_converter.
 
-  lo_converter->convert( EXPORTING
+  lo_converter->convert( exporting
                             it_table     = lt_test
                             i_row_int    = 1
                             i_column_int = 1
                             io_worksheet = lo_worksheet
-                         CHANGING
+                         changing
                             co_excel     = lo_excel ) .
 
   lo_autofilter = lo_excel->add_new_autofilter( io_sheet = lo_worksheet ) .
@@ -56,10 +56,10 @@ START-OF-SELECTION.
 
   lo_autofilter->set_filter_area( is_area = ls_area ).
 
-  lo_worksheet->get_cell( EXPORTING
+  lo_worksheet->get_cell( exporting
                              ip_column    = 'C'
                              ip_row       = 2
-                          IMPORTING
+                          importing
                              ep_value     = l_cell_value ).
   lo_autofilter->set_value( i_column = 3
                             i_value  = l_cell_value ).

@@ -33,12 +33,12 @@ endclass.                     "lcl_handle_events IMPLEMENTATION
 * DATA DECLARATION
 *--------------------------------------------------------------------*
 
-data: lo_excel          type ref to zcl_excel,
-      lo_worksheet      type ref to zcl_excel_worksheet,
-      lo_salv           type ref to cl_salv_table,
-      gr_events         type ref to lcl_handle_events,
-      lr_events         type ref to cl_salv_events_table,
-      gt_sbook          type table of sbook.
+data: lo_excel     type ref to zcl_excel,
+      lo_worksheet type ref to zcl_excel_worksheet,
+      lo_salv      type ref to cl_salv_table,
+      gr_events    type ref to lcl_handle_events,
+      lr_events    type ref to cl_salv_events_table,
+      gt_sbook     type table of sbook.
 
 data: l_path            type string,  " local dir
       lv_workdir        type string,
